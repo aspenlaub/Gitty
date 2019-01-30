@@ -88,7 +88,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not load latest build.cake script.
+        ///   Looks up a localized string similar to Could not load latest {0} script.
         /// </summary>
         internal static string CouldNotLoadLatestBuildCake {
             get {

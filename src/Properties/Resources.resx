@@ -127,7 +127,7 @@
     <value>Could not get list of pull requests</value>
   </data>
   <data name="CouldNotLoadLatestBuildCake" xml:space="preserve">
-    <value>Could not load latest build.cake script</value>
+    <value>Could not load latest {0} script</value>
   </data>
   <data name="CouldNotReadCakeVersion" xml:space="preserve">
     <value>Could not read cake version from {0}</value>

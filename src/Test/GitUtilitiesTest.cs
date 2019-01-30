@@ -112,7 +112,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             var sut = vContainer.Resolve<IGitUtilities>();
             Assert.IsFalse(sut.IsBranchAheadOfMaster(MasterFolder));
             var errorsAndInfos = new ErrorsAndInfos();
-            vContainer.Resolve<CakeBuildUtilities>().CopyLatestBuildCakeScript(DoNotPullFolder, errorsAndInfos);
+            vContainer.Resolve<CakeBuildUtilities>().CopyLatestBuildCakeScript("build.cake", DoNotPullFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             TargetRunner.RunBuildCakeScript(DoNotPullFolder, vContainer.Resolve<ICakeRunner>(), "CleanRestorePull", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
