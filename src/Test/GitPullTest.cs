@@ -1,23 +1,30 @@
 ﻿using System.IO;
 using System.Linq;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
+using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
+using Autofac;
 using LibGit2Sharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using IContainer = Autofac.IContainer;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
     [TestClass]
     public class GitPullTest {
         protected static ITestTargetFolder ChabTargetOne = new TestTargetFolder(nameof(GitPullTest), "Chab");
         protected static ITestTargetFolder ChabTargetTwo = new TestTargetFolder(nameof(GitPullTest) + "Copy", "Chab");
-        protected static TestTargetInstaller TargetInstaller = new TestTargetInstaller(new CakeInstaller(new GitUtilities())); // ToDo: use IoC container
-        protected static TestTargetRunner TargetRunner = new TestTargetRunner();
+        protected static TestTargetInstaller TargetInstaller;
+        protected static TestTargetRunner TargetRunner;
+        private static IContainer vContainer;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context) {
+            vContainer = new ContainerBuilder().UseGitty().UseGittyTestUtilities().Build();
+            TargetInstaller = vContainer.Resolve<TestTargetInstaller>();
+            TargetRunner = vContainer.Resolve<TestTargetRunner>();
             TargetInstaller.DeleteCakeFolder(ChabTargetTwo);
             TargetInstaller.CreateCakeFolder(ChabTargetTwo, out var errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
@@ -40,8 +47,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestMethod]
         public void LatestChangesArePulled() {
-            var gitUtilities = new GitUtilities();
-            var cakeRunner = new CakeRunner(new ProcessRunner());
+            var gitUtilities = vContainer.Resolve<IGitUtilities>();
+            var cakeRunner = vContainer.Resolve<ICakeRunner>();
             var errorsAndInfos = new ErrorsAndInfos();
             var url = "https://github.com/aspenlaub/" + ChabTargetOne.SolutionId + ".git";
             foreach (var target in new[] { ChabTargetOne, ChabTargetTwo }) {
@@ -65,7 +72,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.IsFalse(File.ReadAllText(projectFile).Contains("<RunOctoPack>false</RunOctoPack>"));
             Assert.IsTrue(File.ReadAllText(projectFile).Contains("<RunOctoPack>true</RunOctoPack>"));
 
-            CakeBuildUtilities.CopyLatestBuildCakeScript(ChabTargetTwo, errorsAndInfos);
+            vContainer.Resolve<CakeBuildUtilities>().CopyLatestBuildCakeScript(ChabTargetTwo, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
 
             var buildCakeScriptFileName = ChabTargetTwo.FullName() + @"\" + "build.cake";
@@ -78,7 +85,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             solutionCakeContents = solutionCakeContents.Replace(@"./src", @"../../" + nameof(GitPullTest) + @"/" + ChabTargetOne.SolutionId + @"/src");
             File.WriteAllText(solutionCakeFileFullName, solutionCakeContents);
 
-            TargetRunner.RunBuildCakeScript(ChabTargetTwo, new CakeRunner(new ProcessRunner()), "CleanRestorePull", errorsAndInfos);
+            TargetRunner.RunBuildCakeScript(ChabTargetTwo, vContainer.Resolve<ICakeRunner>(), "CleanRestorePull", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
             Assert.IsFalse(File.ReadAllText(projectFile).Contains("RunOctoPack"));
         }

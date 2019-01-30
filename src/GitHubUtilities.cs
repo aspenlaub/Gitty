@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
-    public class GitHubUtilities {
+    public class GitHubUtilities : IGitHubUtilities {
         private readonly IGitUtilities vGitUtilities;
         private readonly ISecretRepository vSecretRepository;
 

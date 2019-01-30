@@ -1,24 +1,31 @@
 ﻿using System.IO;
 using System.Linq;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
+using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
+using Autofac;
 using LibGit2Sharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using IContainer = Autofac.IContainer;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
     [TestClass]
     public class GitUtilitiesTest {
         protected IFolder DevelopmentFolder, MasterFolder, NoGitFolder;
         protected static ITestTargetFolder DoNotPullFolder = new TestTargetFolder(nameof(GitUtilitiesTest) + @"DoNotPull", "Pakled");
-        protected static TestTargetInstaller TargetInstaller = new TestTargetInstaller(new CakeInstaller(new GitUtilities())); // ToDo: use IoC container
-        protected static TestTargetRunner TargetRunner = new TestTargetRunner();
+        protected static TestTargetInstaller TargetInstaller;
+        protected static TestTargetRunner TargetRunner;
+        private static IContainer vContainer;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context) {
+            vContainer = new ContainerBuilder().UseGitty().UseGittyTestUtilities().Build();
+            TargetInstaller = vContainer.Resolve<TestTargetInstaller>();
+            TargetRunner = vContainer.Resolve<TestTargetRunner>();
             TargetInstaller.DeleteCakeFolder(DoNotPullFolder);
             TargetInstaller.CreateCakeFolder(DoNotPullFolder, out var errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
@@ -72,7 +79,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestMethod]
         public void CanIdentifyCheckedOutBranch() {
-            var sut = new GitUtilities();
+            var sut = vContainer.Resolve<IGitUtilities>();
             Assert.AreEqual("development", sut.CheckedOutBranch(DevelopmentFolder));
             var developmentSubFolder = DevelopmentFolder.SubFolder(@"\Test\Properties");
             Assert.AreEqual("development", sut.CheckedOutBranch(developmentSubFolder));
@@ -82,7 +89,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestMethod]
         public void CanGetHeadTipIdSha() {
-            var sut = new GitUtilities();
+            var sut = vContainer.Resolve<IGitUtilities>();
             var headTipIdSha = sut.HeadTipIdSha(MasterFolder);
             Assert.IsFalse(string.IsNullOrEmpty(headTipIdSha));
             Assert.IsTrue(headTipIdSha.Length >= 40);
@@ -90,7 +97,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestMethod]
         public void CanDetermineUncommittedChanges() {
-            var sut = new GitUtilities();
+            var sut = vContainer.Resolve<IGitUtilities>();
             var errorsAndInfos = new ErrorsAndInfos();
             sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
@@ -102,12 +109,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         [TestMethod]
         public void CanCheckIfIsBranchAheadOfMaster() {
             CloneRepository(DoNotPullFolder.Folder(), "do-not-pull-from-me");
-            var sut = new GitUtilities();
+            var sut = vContainer.Resolve<IGitUtilities>();
             Assert.IsFalse(sut.IsBranchAheadOfMaster(MasterFolder));
             var errorsAndInfos = new ErrorsAndInfos();
-            CakeBuildUtilities.CopyLatestBuildCakeScript(DoNotPullFolder, errorsAndInfos);
+            vContainer.Resolve<CakeBuildUtilities>().CopyLatestBuildCakeScript(DoNotPullFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-            TargetRunner.RunBuildCakeScript(DoNotPullFolder, new CakeRunner(new ProcessRunner()), "CleanRestorePull", errorsAndInfos);
+            TargetRunner.RunBuildCakeScript(DoNotPullFolder, vContainer.Resolve<ICakeRunner>(), "CleanRestorePull", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             Assert.IsTrue(sut.IsBranchAheadOfMaster(DoNotPullFolder.Folder()));
         }

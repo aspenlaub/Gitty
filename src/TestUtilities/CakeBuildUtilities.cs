@@ -5,7 +5,7 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
     public class CakeBuildUtilities {
-        public static void CopyLatestBuildCakeScript(ITestTargetFolder testTargetFolder, IErrorsAndInfos errorsAndInfos) {
+        public void CopyLatestBuildCakeScript(ITestTargetFolder testTargetFolder, IErrorsAndInfos errorsAndInfos) {
             ILatestBuildCakeScriptProvider latestBuildCakeScriptProvider = new LatestBuildCakeScriptProvider();
             var latestBuildCakeScript = latestBuildCakeScriptProvider.GetLatestBuildCakeScript();
             if (latestBuildCakeScript.Length < 120 || !latestBuildCakeScript.Contains("#load \"solution.cake\"")) {

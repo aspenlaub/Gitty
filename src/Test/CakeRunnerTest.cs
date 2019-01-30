@@ -2,11 +2,14 @@
 using System.Linq;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
+using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
+using Autofac;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using IContainer = Autofac.IContainer;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
     [TestClass]
@@ -17,11 +20,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         protected const string SuccessCakeUrl = "https://raw.githubusercontent.com/aspenlaub/Gitty/master/src/Test/success.cake";
         protected const string FailureCakeUrl = "https://raw.githubusercontent.com/aspenlaub/Gitty/master/src/Test/failure.cake";
         protected const string ThisIsNotCake = @"This is not a cake!";
+        private static IContainer vContainer;
 
         [ClassInitialize]
         public static void Initialize(TestContext context) {
+            vContainer = new ContainerBuilder().UseGitty().UseGittyTestUtilities().Build();
             DeleteFolder(CakeFolder());
-            ICakeInstaller cakeInstaller = new CakeInstaller(new GitUtilities());
+            var cakeInstaller = vContainer.Resolve<ICakeInstaller>();
             cakeInstaller.InstallCake(CakeFolder(), out var errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             CakeExeFileFullName = cakeInstaller.CakeExeFileFullName(CakeFolder());
@@ -34,7 +39,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
                 webClient.DownloadFile(FailureCakeUrl, ScriptsFolder.FullName + @"\failure.cake");
             }
 
-            Sut = new CakeRunner(new ProcessRunner());
+            Sut = vContainer.Resolve<ICakeRunner>();
         }
 
         [ClassCleanup]

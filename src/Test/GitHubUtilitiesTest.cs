@@ -3,20 +3,26 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
+using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
+using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
+using Autofac;
 using LibGit2Sharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using IContainer = Autofac.IContainer;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
     [TestClass]
     public class GitHubUtilitiesTest {
         protected IFolder MasterFolder, DevelopmentFolder;
+        private static IContainer vContainer;
 
         [TestInitialize]
         public void Initialize() {
+            vContainer = new ContainerBuilder().UseGitty().UseGittyTestUtilities().Build();
             var checkOutFolder = Path.GetTempPath() + nameof(GitHubUtilitiesTest) + '\\';
             MasterFolder = new Folder(checkOutFolder + @"Pakled-Master");
             DevelopmentFolder = new Folder(checkOutFolder + @"Pakled-Development");
@@ -51,8 +57,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestMethod]
         public async Task CanCheckIfPullRequestsExist() {
-            var componentProvider = new ComponentProvider();
-            var sut = new GitHubUtilities(new GitUtilities(), componentProvider.SecretRepository);
+            var sut = vContainer.Resolve<IGitHubUtilities>();
             var errorsAndInfos = new ErrorsAndInfos();
             var hasOpenPullRequest = await HasOpenPullRequestAsync(sut, "", errorsAndInfos);
             if (hasOpenPullRequest.Inconclusive) { return; }
@@ -85,7 +90,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.IsTrue(hasPullRequest.YesNo);
         }
 
-        protected async Task<YesNoInconclusive> HasOpenPullRequestAsync(GitHubUtilities sut, string semicolonSeparatedListOfPullRequestNumbersToIgnore, ErrorsAndInfos errorsAndInfos) {
+        protected async Task<YesNoInconclusive> HasOpenPullRequestAsync(IGitHubUtilities sut, string semicolonSeparatedListOfPullRequestNumbersToIgnore, ErrorsAndInfos errorsAndInfos) {
             var inconclusive = false;
             var hasOpenPullRequest = false;
             try {
@@ -97,7 +102,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             return new YesNoInconclusive { YesNo = hasOpenPullRequest, Inconclusive = inconclusive };
         }
 
-        protected async Task<YesNoInconclusive> HasOpenPullRequestForThisBranchAsync(GitHubUtilities sut, bool master, ErrorsAndInfos errorsAndInfos) {
+        protected async Task<YesNoInconclusive> HasOpenPullRequestForThisBranchAsync(IGitHubUtilities sut, bool master, ErrorsAndInfos errorsAndInfos) {
             var inconclusive = false;
             var hasOpenPullRequest = false;
             try {
@@ -109,7 +114,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             return new YesNoInconclusive { YesNo = hasOpenPullRequest, Inconclusive = inconclusive };
         }
 
-        protected async Task<YesNoInconclusive> HasPullRequestForThisBranchAndItsHeadTipAsync(GitHubUtilities sut, ErrorsAndInfos errorsAndInfos) {
+        protected async Task<YesNoInconclusive> HasPullRequestForThisBranchAndItsHeadTipAsync(IGitHubUtilities sut, ErrorsAndInfos errorsAndInfos) {
             var inconclusive = false;
             var hasOpenPullRequest = false;
             try {
@@ -123,8 +128,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestMethod]
         public async Task CanCheckHowManyPullRequestsExist() {
-            var componentProvider = new ComponentProvider();
-            var sut = new GitHubUtilities(new GitUtilities(), componentProvider.SecretRepository);
+            var sut = vContainer.Resolve<IGitHubUtilities>();
             var errorsAndInfos = new ErrorsAndInfos();
             try {
                 var numberOfPullRequests = await sut.GetNumberOfPullRequestsAsync(MasterFolder, errorsAndInfos);

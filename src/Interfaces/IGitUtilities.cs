@@ -70,5 +70,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces {
         /// <param name="folder"></param>
         /// <param name="errorsAndInfos"></param>
         void DownloadReadyToCake(IFolder folder, IErrorsAndInfos errorsAndInfos);
+
+        /// <summary>
+        /// Reset repository to a specific head tip sha
+        /// </summary>
+        /// <param name="repositoryFolder"></param>
+        /// <param name="headTipIdSha"></param>
+        /// <param name="errorsAndInfos"></param>
+        void Reset(IFolder repositoryFolder, string headTipIdSha, IErrorsAndInfos errorsAndInfos);
     }
 }

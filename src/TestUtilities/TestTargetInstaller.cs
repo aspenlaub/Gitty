@@ -7,9 +7,11 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
     public class TestTargetInstaller {
         private readonly ICakeInstaller vCakeInstaller;
+        private readonly IGitUtilities vGitUtilities;
 
-        public TestTargetInstaller(ICakeInstaller cakeInstaller) {
+        public TestTargetInstaller(ICakeInstaller cakeInstaller, IGitUtilities gitUtilities) {
             vCakeInstaller = cakeInstaller;
+            vGitUtilities = gitUtilities;
         }
 
         public void DeleteCakeFolder(ITestTargetFolder testTargetFolder) {
@@ -27,8 +29,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
 
             vCakeInstaller.InstallCake(testTargetFolder.CakeFolder(), out errorsAndInfos);
 
-            var gitUtilities = new GitUtilities();
-            gitUtilities.DownloadReadyToCake(testTargetFolder.CakeFolder().SubFolder(@"tools"), errorsAndInfos);
+            vGitUtilities.DownloadReadyToCake(testTargetFolder.CakeFolder().SubFolder(@"tools"), errorsAndInfos);
         }
     }
 }
