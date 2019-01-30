@@ -114,7 +114,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             var errorsAndInfos = new ErrorsAndInfos();
             vContainer.Resolve<CakeBuildUtilities>().CopyLatestBuildCakeScript("build.cake", DoNotPullFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-            TargetRunner.RunBuildCakeScript(DoNotPullFolder, vContainer.Resolve<ICakeRunner>(), "CleanRestorePull", errorsAndInfos);
+            TargetRunner.RunBuildCakeScript("build.cake", DoNotPullFolder, vContainer.Resolve<ICakeRunner>(), "CleanRestorePull", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             Assert.IsTrue(sut.IsBranchAheadOfMaster(DoNotPullFolder.Folder()));
         }

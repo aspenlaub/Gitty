@@ -85,7 +85,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             solutionCakeContents = solutionCakeContents.Replace(@"./src", @"../../" + nameof(GitPullTest) + @"/" + ChabTargetOne.SolutionId + @"/src");
             File.WriteAllText(solutionCakeFileFullName, solutionCakeContents);
 
-            TargetRunner.RunBuildCakeScript(ChabTargetTwo, vContainer.Resolve<ICakeRunner>(), "CleanRestorePull", errorsAndInfos);
+            TargetRunner.RunBuildCakeScript("build.cake", ChabTargetTwo, vContainer.Resolve<ICakeRunner>(), "CleanRestorePull", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
             Assert.IsFalse(File.ReadAllText(projectFile).Contains("RunOctoPack"));
         }
