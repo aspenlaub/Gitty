@@ -105,7 +105,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             var sut = new GitUtilities();
             Assert.IsFalse(sut.IsBranchAheadOfMaster(MasterFolder));
             var errorsAndInfos = new ErrorsAndInfos();
-            CakeBuildUtilities.CopyLatestScriptFromShatilayaSolution(DoNotPullFolder, errorsAndInfos);
+            CakeBuildUtilities.CopyLatestBuildCakeScript(DoNotPullFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             TargetRunner.RunBuildCakeScript(DoNotPullFolder, new CakeRunner(new ProcessRunner()), "CleanRestorePull", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());

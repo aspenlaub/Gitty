@@ -14,8 +14,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         protected static ICakeRunner Sut;
         protected static string CakeExeFileFullName;
         protected static IFolder ScriptsFolder;
-        protected const string SuccessCakeUrl = "https://raw.githubusercontent.com/aspenlaub/Shatilaya/master/src/Test/success.cake";
-        protected const string FailureCakeUrl = "https://raw.githubusercontent.com/aspenlaub/Shatilaya/master/src/Test/failure.cake";
+        protected const string SuccessCakeUrl = "https://raw.githubusercontent.com/aspenlaub/Gitty/master/src/Test/success.cake";
+        protected const string FailureCakeUrl = "https://raw.githubusercontent.com/aspenlaub/Gitty/master/src/Test/failure.cake";
         protected const string ThisIsNotCake = @"This is not a cake!";
 
         [ClassInitialize]
