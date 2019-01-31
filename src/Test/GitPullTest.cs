@@ -72,10 +72,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.IsFalse(File.ReadAllText(projectFile).Contains("<RunOctoPack>false</RunOctoPack>"));
             Assert.IsTrue(File.ReadAllText(projectFile).Contains("<RunOctoPack>true</RunOctoPack>"));
 
-            vContainer.Resolve<CakeBuildUtilities>().CopyLatestBuildCakeScript("build.cake", ChabTargetTwo, errorsAndInfos);
+            vContainer.Resolve<CakeBuildUtilities>().CopyLatestBuildCakeScript(BuildCake.Standard, ChabTargetTwo, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
 
-            var buildCakeScriptFileName = ChabTargetTwo.FullName() + @"\" + "build.cake";
+            var buildCakeScriptFileName = ChabTargetTwo.FullName() + @"\" + BuildCake.Standard;
             var repositoryFolderSetStatement = "var repositoryFolder = MakeAbsolute(DirectoryPath.FromString(\"../../" + nameof(GitPullTest) + "/" + ChabTargetOne.SolutionId + "\")).FullPath;";
             var buildCakeScript = File.ReadAllLines(buildCakeScriptFileName).Select(s => s.Contains("var repositoryFolder =") ? repositoryFolderSetStatement : s);
             File.WriteAllLines(buildCakeScriptFileName, buildCakeScript);
@@ -85,7 +85,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             solutionCakeContents = solutionCakeContents.Replace(@"./src", @"../../" + nameof(GitPullTest) + @"/" + ChabTargetOne.SolutionId + @"/src");
             File.WriteAllText(solutionCakeFileFullName, solutionCakeContents);
 
-            TargetRunner.RunBuildCakeScript("build.cake", ChabTargetTwo, vContainer.Resolve<ICakeRunner>(), "CleanRestorePull", errorsAndInfos);
+            TargetRunner.RunBuildCakeScript(BuildCake.Standard, ChabTargetTwo, "CleanRestorePull", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
             Assert.IsFalse(File.ReadAllText(projectFile).Contains("RunOctoPack"));
         }
