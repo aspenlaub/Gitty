@@ -28,6 +28,7 @@
     <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.6961.33473" />
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="LibGit2Sharp" Version="0.25.4" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
   </ItemGroup>
   <ItemGroup>
