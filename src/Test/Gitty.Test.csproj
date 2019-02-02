@@ -12,6 +12,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
   <ItemGroup>
+    <None Remove="build.cake" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="build.cake" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.6961.33473" />
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="LibGit2Sharp" Version="0.25.4" />
