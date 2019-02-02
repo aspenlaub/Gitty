@@ -1,25 +1,26 @@
 ﻿using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
     public class CakeBuildUtilities {
-        public void CopyLatestBuildCakeScript(string buildCakeName, ITestTargetFolder testTargetFolder, IErrorsAndInfos errorsAndInfos) {
-            ILatestBuildCakeScriptProvider latestBuildCakeScriptProvider = new LatestBuildCakeScriptProvider();
-            var latestBuildCakeScript = latestBuildCakeScriptProvider.GetLatestBuildCakeScript(buildCakeName);
-            if (latestBuildCakeScript.Length < 120 || !latestBuildCakeScript.Contains("#load \"solution.cake\"")) {
-                errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CouldNotLoadLatestBuildCake, buildCakeName));
+        public void CopyCakeScriptEmbeddedInAssembly(Assembly assembly, string buildCakeName, ITestTargetFolder testTargetFolder, IErrorsAndInfos errorsAndInfos) {
+            IEmbeddedCakeScriptReader embeddedCakeScriptReader = new EmbeddedCakeScriptReader();
+            var embeddedCakeScript = embeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, buildCakeName);
+            if (embeddedCakeScript.Length < 120 || !embeddedCakeScript.Contains("#load \"solution.cake\"")) {
+                errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CouldNotLoadEmbeddedBuildCake, buildCakeName, assembly.FullName));
                 return;
             }
 
             var currentScriptFileName = testTargetFolder.FullName() + @"\" + buildCakeName;
             if (File.Exists(currentScriptFileName)) {
                 var currentScript = File.ReadAllText(currentScriptFileName);
-                if (Regex.Replace(latestBuildCakeScript, @"\s", "") == Regex.Replace(currentScript, @"\s", "")) { return; }
+                if (Regex.Replace(embeddedCakeScript, @"\s", "") == Regex.Replace(currentScript, @"\s", "")) { return; }
             }
 
-            File.WriteAllText(currentScriptFileName, latestBuildCakeScript);
+            File.WriteAllText(currentScriptFileName, embeddedCakeScript);
         }
     }
 }

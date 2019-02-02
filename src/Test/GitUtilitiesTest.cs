@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Reflection;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
@@ -112,7 +113,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             var sut = vContainer.Resolve<IGitUtilities>();
             Assert.IsFalse(sut.IsBranchAheadOfMaster(MasterFolder));
             var errorsAndInfos = new ErrorsAndInfos();
-            vContainer.Resolve<CakeBuildUtilities>().CopyLatestBuildCakeScript(BuildCake.Standard, DoNotPullFolder, errorsAndInfos);
+            vContainer.Resolve<CakeBuildUtilities>().CopyCakeScriptEmbeddedInAssembly(typeof(CakeRunner).Assembly, BuildCake.Standard, DoNotPullFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             TargetRunner.RunBuildCakeScript(BuildCake.Standard, DoNotPullFolder, "CleanRestorePull", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());

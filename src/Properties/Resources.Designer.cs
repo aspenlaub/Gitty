@@ -88,11 +88,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not load latest {0} script.
+        ///   Looks up a localized string similar to Could not load {0} script embedded in {1}.
         /// </summary>
-        internal static string CouldNotLoadLatestBuildCake {
+        internal static string CouldNotLoadEmbeddedBuildCake {
             get {
-                return ResourceManager.GetString("CouldNotLoadLatestBuildCake", resourceCulture);
+                return ResourceManager.GetString("CouldNotLoadEmbeddedBuildCake", resourceCulture);
             }
         }
         

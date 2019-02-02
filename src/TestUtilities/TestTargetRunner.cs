@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
@@ -23,9 +24,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
             vCakeRunner.CallCake(cakeExeFileFullName, scriptFileFullName, target, errorsAndInfos);
         }
 
-        public void IgnoreOutdatedBuildCakePendingChangesAndDoNotPush(ITestTargetFolder targetFolder, IErrorsAndInfos errorsAndInfos) {
-            var latestBuildCakeScriptProvider = new LatestBuildCakeScriptProvider();
-            var cakeScript = latestBuildCakeScriptProvider.GetLatestBuildCakeScript(BuildCake.Standard);
+        public void IgnoreOutdatedBuildCakePendingChangesAndDoNotPush(Assembly assembly, ITestTargetFolder targetFolder, IErrorsAndInfos errorsAndInfos) {
+            var embeddedCakeScriptReader = new EmbeddedCakeScriptReader();
+            var cakeScript = embeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, BuildCake.Standard);
             var cakeScriptFileFullName = targetFolder.Folder().FullName + @"\" + BuildCake.Standard;
             File.WriteAllText(cakeScriptFileFullName, cakeScript);
 

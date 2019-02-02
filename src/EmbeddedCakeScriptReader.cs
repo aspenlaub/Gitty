@@ -4,9 +4,8 @@ using System.Reflection;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
-    public class LatestBuildCakeScriptProvider : ILatestBuildCakeScriptProvider {
-        public string GetLatestBuildCakeScript(string buildCakeName) {
-            var assembly = Assembly.GetExecutingAssembly();
+    public class EmbeddedCakeScriptReader : IEmbeddedCakeScriptReader {
+        public string ReadCakeScriptFromAssembly(Assembly assembly, string buildCakeName) {
             var names = assembly.GetManifestResourceNames();
             var name = names.FirstOrDefault(n => n.StartsWith("Aspenlaub.Net.GitHub.CSharp.") && n.EndsWith("." + buildCakeName));
             if (name == null) { return ""; }

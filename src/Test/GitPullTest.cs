@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Reflection;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
@@ -72,7 +73,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.IsFalse(File.ReadAllText(projectFile).Contains("<RunOctoPack>false</RunOctoPack>"));
             Assert.IsTrue(File.ReadAllText(projectFile).Contains("<RunOctoPack>true</RunOctoPack>"));
 
-            vContainer.Resolve<CakeBuildUtilities>().CopyLatestBuildCakeScript(BuildCake.Standard, ChabTargetTwo, errorsAndInfos);
+            vContainer.Resolve<CakeBuildUtilities>().CopyCakeScriptEmbeddedInAssembly(typeof(CakeRunner).Assembly, BuildCake.Standard, ChabTargetTwo, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
 
             var buildCakeScriptFileName = ChabTargetTwo.FullName() + @"\" + BuildCake.Standard;
