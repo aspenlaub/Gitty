@@ -1,0 +1,1 @@
+﻿#addin nuget:https://www.aspenlaub.net/nuget/?package=Aspenlaub.Net.GitHub.CSharp.Gitty

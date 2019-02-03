@@ -8,6 +8,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
         public static ContainerBuilder UseGitty(this ContainerBuilder builder) {
             builder.RegisterType<CakeInstaller>().As<ICakeInstaller>();
             builder.RegisterType<CakeRunner>().As<ICakeRunner>();
+            builder.RegisterType<EmbeddedCakeScriptReader>().As<IEmbeddedCakeScriptReader>();
             builder.RegisterType<GitHubUtilities>().As<IGitHubUtilities>();
             builder.RegisterType<GitUtilities>().As<IGitUtilities>();
             builder.RegisterType<ProcessRunner>().As<IProcessRunner>();
@@ -21,6 +22,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
         public static IServiceCollection UseGitty(this IServiceCollection services) {
             services.AddTransient<ICakeInstaller, CakeInstaller>();
             services.AddTransient<ICakeRunner, CakeRunner>();
+            services.AddTransient<IEmbeddedCakeScriptReader, EmbeddedCakeScriptReader>();
             services.AddTransient<IGitHubUtilities, GitHubUtilities>();
             services.AddTransient<IGitUtilities, GitUtilities>();
             services.AddTransient<IProcessRunner, ProcessRunner>();

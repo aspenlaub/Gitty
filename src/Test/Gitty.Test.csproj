@@ -13,9 +13,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
   <ItemGroup>
     <None Remove="build.cake" />
+    <None Remove="failure.cake" />
+    <None Remove="gitty.cake" />
+    <None Remove="success.cake" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\..\build.cake" Link="build.cake" />
+    <EmbeddedResource Include="failure.cake" />
+    <EmbeddedResource Include="gitty.cake" />
+    <EmbeddedResource Include="success.cake" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.6961.33473" />

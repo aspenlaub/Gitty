@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Reflection;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
@@ -17,8 +18,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         protected static ICakeRunner Sut;
         protected static string CakeExeFileFullName;
         protected static IFolder ScriptsFolder;
-        protected const string SuccessCakeUrl = "https://raw.githubusercontent.com/aspenlaub/Gitty/master/src/Test/success.cake";
-        protected const string FailureCakeUrl = "https://raw.githubusercontent.com/aspenlaub/Gitty/master/src/Test/failure.cake";
         protected const string ThisIsNotCake = @"This is not a cake!";
         private static IContainer vContainer;
 
@@ -34,9 +33,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             ScriptsFolder = CakeScriptsFolder();
             DeleteFolder(ScriptsFolder);
             Directory.CreateDirectory(ScriptsFolder.FullName);
-            using (var webClient = new System.Net.WebClient()) {
-                webClient.DownloadFile(SuccessCakeUrl, ScriptsFolder.FullName + @"\success.cake");
-                webClient.DownloadFile(FailureCakeUrl, ScriptsFolder.FullName + @"\failure.cake");
+
+            var cakeScriptReader = vContainer.Resolve<IEmbeddedCakeScriptReader>();
+            foreach (var cakeId in new[] {"success", "failure", "gitty"}) {
+                File.WriteAllText(ScriptsFolder.FullName + @"\" + cakeId + ".cake", cakeScriptReader.ReadCakeScriptFromAssembly(Assembly.GetExecutingAssembly(), cakeId + ".cake"));
             }
 
             Sut = vContainer.Resolve<ICakeRunner>();
@@ -70,7 +70,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             var errorsAndInfos = new ErrorsAndInfos();
 
             Sut.CallCake(CakeExeFileFullName, ScriptsFolder.FullName + @"\success.cake", errorsAndInfos);
-            Assert.IsFalse(errorsAndInfos.Errors.Any());
+            Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsToString());
             Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Task")));
             Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Duration")));
             Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"00:00:00")));
@@ -101,8 +101,16 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         public void CanCallScriptAgainstAlternativeTarget() {
             var errorsAndInfos = new ErrorsAndInfos();
             Sut.CallCake(CakeExeFileFullName, ScriptsFolder.FullName + @"\success.cake", "AlternativeTarget", errorsAndInfos);
-            Assert.IsFalse(errorsAndInfos.Errors.Any(), string.Join("\r\n", errorsAndInfos));
+            Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsToString());
             Assert.IsTrue(errorsAndInfos.Infos.Any(i => i.Contains("This is an alternative target")));
+        }
+
+        [TestMethod, Ignore]
+        public void CanCallScriptUsingGittyAsAddin() {
+            var errorsAndInfos = new ErrorsAndInfos();
+
+            Sut.CallCake(CakeExeFileFullName, ScriptsFolder.FullName + @"\gitty.cake", errorsAndInfos);
+            Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsToString());
         }
     }
 }
