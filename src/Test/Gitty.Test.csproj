@@ -15,7 +15,7 @@
     <None Remove="build.cake" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="build.cake" />
+    <EmbeddedResource Include="..\..\build.cake" Link="build.cake" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.6961.33473" />
