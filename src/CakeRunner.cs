@@ -9,7 +9,7 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
     public class CakeRunner : ICakeRunner {
-        public const string PinnedCakeVersion = "0.30.0", PreviousPinnedCakeVersion = "0.30.0";
+        public const string PinnedCakeVersion = "0.32.1", PreviousPinnedCakeVersion = "0.32.1";
 
         private readonly IProcessRunner vProcessRunner;
 

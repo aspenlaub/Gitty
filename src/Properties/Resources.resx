@@ -123,6 +123,9 @@
   <data name="CommitNotFound" xml:space="preserve">
     <value>Commit '{0}' not found</value>
   </data>
+  <data name="CouldNotDownload" xml:space="preserve">
+    <value>Could not download "{0}"</value>
+  </data>
   <data name="CouldNotGetListOfPullRequests" xml:space="preserve">
     <value>Could not get list of pull requests</value>
   </data>

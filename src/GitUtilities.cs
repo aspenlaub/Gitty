@@ -161,16 +161,22 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             var downloadFolder = DownloadFolder();
             var downloadedZipFileFullName = downloadFolder + $"\\cake.{CakeRunner.PinnedCakeVersion}.zip";
             if (!File.Exists(downloadedZipFileFullName)) {
+                var url = $"https://www.aspenlaub.net/Github/cake.{CakeRunner.PinnedCakeVersion}.zip";
                 using (var client = new WebClient()) {
-                    client.DownloadFile($"https://www.aspenlaub.net/Github/cake.{CakeRunner.PinnedCakeVersion}.zip", downloadedZipFileFullName);
+                    client.DownloadFile(url, downloadedZipFileFullName);
+                }
+
+                if (!File.Exists(downloadedZipFileFullName)) {
+                    errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CouldNotDownload, url));
                 }
             }
+
             using (var zipStream = new FileStream(downloadedZipFileFullName, FileMode.Open, FileAccess.Read, FileShare.Read)) {
                 var fastZip = new FastZip();
                 fastZip.ExtractZip(zipStream, folder.FullName, FastZip.Overwrite.Never, s => { return true; }, null, null, true, true);
-                if (Directory.Exists(folder.FullName + @"\Cake")) { return; }
+                if (folder.SubFolder("Cake").Exists()) { return; }
 
-                errorsAndInfos.Errors.Add(string.Format(Properties.Resources.FolderCouldNotBeCreated, folder));
+                errorsAndInfos.Errors.Add(string.Format(Properties.Resources.FolderCouldNotBeCreated, folder.SubFolder("Cake").FullName));
             }
         }
     }

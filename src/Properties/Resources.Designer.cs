@@ -79,6 +79,15 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not download &quot;{0}&quot;.
+        /// </summary>
+        internal static string CouldNotDownload {
+            get {
+                return ResourceManager.GetString("CouldNotDownload", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not get list of pull requests.
         /// </summary>
         internal static string CouldNotGetListOfPullRequests {
