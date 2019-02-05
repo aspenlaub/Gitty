@@ -24,8 +24,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         public void Initialize() {
             vContainer = new ContainerBuilder().UseGitty().UseGittyTestUtilities().Build();
             var checkOutFolder = Path.GetTempPath() + nameof(GitHubUtilitiesTest) + '\\';
-            MasterFolder = new Folder(checkOutFolder + @"Pakled-Master");
-            DevelopmentFolder = new Folder(checkOutFolder + @"Pakled-Development");
+            MasterFolder = new Folder(checkOutFolder + @"PakledCore-Master");
+            DevelopmentFolder = new Folder(checkOutFolder + @"PakledCore-Development");
 
             CleanUp();
             CloneRepository(MasterFolder, "master");
@@ -51,7 +51,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
                 deleter.DeleteFolder(folder);
             }
 
-            const string url = "https://github.com/aspenlaub/Pakled.git";
+            const string url = "https://github.com/aspenlaub/PakledCore.git";
             Repository.Clone(url, folder.FullName, new CloneOptions { BranchName = branch });
         }
 
@@ -65,7 +65,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             Assert.IsTrue(hasOpenPullRequest.YesNo);
 
-            hasOpenPullRequest = await HasOpenPullRequestAsync(sut, "2", errorsAndInfos);
+            hasOpenPullRequest = await HasOpenPullRequestAsync(sut, "1", errorsAndInfos);
             if (hasOpenPullRequest.Inconclusive) { return; }
 
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
@@ -96,7 +96,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             try {
                 hasOpenPullRequest = await sut.HasOpenPullRequestAsync(MasterFolder, semicolonSeparatedListOfPullRequestNumbersToIgnore, errorsAndInfos);
             } catch (WebException) {
-                inconclusive = true; // ToDo: use Assert.Inconclusive
+                inconclusive = true;
             }
 
             return new YesNoInconclusive { YesNo = hasOpenPullRequest, Inconclusive = inconclusive };
@@ -108,7 +108,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             try {
                 hasOpenPullRequest = await sut.HasOpenPullRequestForThisBranchAsync(master ? MasterFolder : DevelopmentFolder, errorsAndInfos);
             } catch (WebException) {
-                inconclusive = true; // ToDo: use Assert.Inconclusive
+                inconclusive = true;
             }
 
             return new YesNoInconclusive { YesNo = hasOpenPullRequest, Inconclusive = inconclusive };
@@ -120,7 +120,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             try {
                 hasOpenPullRequest = await sut.HasPullRequestForThisBranchAndItsHeadTipAsync(DevelopmentFolder, errorsAndInfos);
             } catch (WebException) {
-                inconclusive = true; // ToDo: use Assert.Inconclusive
+                inconclusive = true;
             }
 
             return new YesNoInconclusive { YesNo = hasOpenPullRequest, Inconclusive = inconclusive };
@@ -133,8 +133,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             try {
                 var numberOfPullRequests = await sut.GetNumberOfPullRequestsAsync(MasterFolder, errorsAndInfos);
                 Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-                Assert.IsTrue(numberOfPullRequests > 1);
-            } catch (WebException) { // ToDo: use Assert.Inconclusive
+                Assert.IsTrue(numberOfPullRequests > 0);
+            } catch (WebException) {
             }
         }
     }
