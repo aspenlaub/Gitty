@@ -10,5 +10,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Entities {
 
         [XmlAttribute("token")]
         public string Token { get; set; }
+
+        [XmlAttribute("purpose")]
+        public string Purpose { get; set; }
+
+        [XmlAttribute("email")]
+        public string Email { get; set; }
     }
 }

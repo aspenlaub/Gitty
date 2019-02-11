@@ -76,7 +76,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
                 return null;
             }
 
-            var personalAccessToken = personalAccessTokens.FirstOrDefault(p => p.Owner == owner && p.TokenName == "CakeBuild");
+            var personalAccessToken = personalAccessTokens.FirstOrDefault(p => p.Owner == owner && p.Purpose == "API");
             if (personalAccessToken != null) {
                 request.Headers.Add("Authorization", "token " + personalAccessToken.Token);
             }
