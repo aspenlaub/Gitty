@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -87,13 +88,17 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
         }
 
         public void VerifyThatThereAreNoUncommittedChanges(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
-            if (!repositoryFolder.Exists()) { return; }
+            var files = FilesWithUncommittedChanges(repositoryFolder);
+            foreach (var file in files) {
+                errorsAndInfos.Errors.Add(string.Format(Properties.Resources.UncommittedChangeTo, file));
+            }
+        }
+
+        public IList<string> FilesWithUncommittedChanges(IFolder repositoryFolder) {
+            if (!repositoryFolder.Exists()) { return new List<string>(); }
 
             using (var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions())) {
-                var changes = repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree, DiffTargets.Index | DiffTargets.WorkingDirectory).ToList();
-                foreach (var change in changes) {
-                    errorsAndInfos.Errors.Add(string.Format(Properties.Resources.UncommittedChangeTo, change.Path));
-                }
+                return repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree, DiffTargets.Index | DiffTargets.WorkingDirectory).Select(c => c.Path).ToList();
             }
         }
 

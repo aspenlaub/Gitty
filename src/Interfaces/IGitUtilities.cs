@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using LibGit2Sharp;
+// ReSharper disable UnusedMember.Global
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces {
     public interface IGitUtilities {
@@ -78,5 +80,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces {
         /// <param name="headTipIdSha"></param>
         /// <param name="errorsAndInfos"></param>
         void Reset(IFolder repositoryFolder, string headTipIdSha, IErrorsAndInfos errorsAndInfos);
+
+        /// <summary>
+        /// Return files with uncommitted changes
+        /// </summary>
+        /// <param name="repositoryFolder"></param>
+        /// <returns></returns>
+        IList<string> FilesWithUncommittedChanges(IFolder repositoryFolder);
     }
 }

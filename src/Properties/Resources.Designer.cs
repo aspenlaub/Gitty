@@ -61,7 +61,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot interpret \&quot;{0}\&quot; as a GitHub repository url.
+        ///   Looks up a localized string similar to Cannot interpret &quot;{0}&quot; as a GitHub repository url.
         /// </summary>
         internal static string CannotInterpretRepositoryUrl {
             get {
@@ -124,7 +124,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to File \&quot;{0}\&quot; not found.
+        ///   Looks up a localized string similar to File &quot;{0}&quot; not found.
         /// </summary>
         internal static string FileNotFound {
             get {
@@ -133,7 +133,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Folder \&quot;{0}\&quot; could not be created.
+        ///   Looks up a localized string similar to Folder &quot;{0}&quot; could not be created.
         /// </summary>
         internal static string FolderCouldNotBeCreated {
             get {
@@ -142,7 +142,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There is an uncommitted change to \&quot;{0}\&quot;.
+        ///   Looks up a localized string similar to There is an uncommitted change to &quot;{0}&quot;.
         /// </summary>
         internal static string UncommittedChangeTo {
             get {

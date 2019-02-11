@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CannotInterpretRepositoryUrl" xml:space="preserve">
-    <value>Cannot interpret \"{0}\" as a GitHub repository url</value>
+    <value>Cannot interpret "{0}" as a GitHub repository url</value>
   </data>
   <data name="CommitNotFound" xml:space="preserve">
     <value>Commit '{0}' not found</value>
@@ -139,13 +139,13 @@
     <value>The checked out repository must have exactly one remote</value>
   </data>
   <data name="FileNotFound" xml:space="preserve">
-    <value>File \"{0}\" not found</value>
+    <value>File "{0}" not found</value>
   </data>
   <data name="FolderCouldNotBeCreated" xml:space="preserve">
-    <value>Folder \"{0}\" could not be created</value>
+    <value>Folder "{0}" could not be created</value>
   </data>
   <data name="UncommittedChangeTo" xml:space="preserve">
-    <value>There is an uncommitted change to \"{0}\"</value>
+    <value>There is an uncommitted change to "{0}"</value>
   </data>
   <data name="WrongCakeVersion" xml:space="preserve">
     <value>Wrong cake version {0} in {1}</value>
