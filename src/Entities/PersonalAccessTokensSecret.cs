@@ -5,6 +5,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Entities {
         private PersonalAccessTokens vPersonalAccessTokens;
         public PersonalAccessTokens DefaultValue => vPersonalAccessTokens ?? (vPersonalAccessTokens = new PersonalAccessTokens());
 
-        public string Guid => "A7EDA2D5-4207-46D1-A1F5-B7F831C0269B";
+        public string Guid => "D72CD90D-EA45-430B-96E7-3AF71EED408B";
     }
 }
