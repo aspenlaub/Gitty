@@ -108,6 +108,21 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         }
 
         [TestMethod]
+        public void CanUndoUncommittedChanges() {
+            var sut = vContainer.Resolve<IGitUtilities>();
+            var errorsAndInfos = new ErrorsAndInfos();
+            sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+            Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
+            File.WriteAllText(MasterFolder.FullName + @"\change.cs", @"This is not a change");
+            sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+            Assert.IsTrue(errorsAndInfos.Errors.Any(e => e.Contains(@"change.cs")));
+            errorsAndInfos = new ErrorsAndInfos();
+            sut.Reset(MasterFolder, sut.HeadTipIdSha(MasterFolder), errorsAndInfos);
+            sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+            Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
+        }
+
+        [TestMethod]
         public void CanCheckIfIsBranchAheadOfMaster() {
             CloneRepository(DoNotPullFolder.Folder(), "do-not-pull-from-me");
             var sut = vContainer.Resolve<IGitUtilities>();

@@ -74,7 +74,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces {
         void DownloadReadyToCake(IFolder folder, IErrorsAndInfos errorsAndInfos);
 
         /// <summary>
-        /// Reset repository to a specific head tip sha
+        /// Reset repository to a specific head tip sha and remove untracked files
         /// </summary>
         /// <param name="repositoryFolder"></param>
         /// <param name="headTipIdSha"></param>

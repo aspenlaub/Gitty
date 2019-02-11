@@ -118,6 +118,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
                     errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CommitNotFound, headTipIdSha));
                 } else {
                     repo.Reset(ResetMode.Hard, commit);
+                    repo.RemoveUntrackedFiles();
                 }
             }
         }
