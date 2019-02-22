@@ -87,5 +87,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces {
         /// <param name="repositoryFolder"></param>
         /// <returns></returns>
         IList<string> FilesWithUncommittedChanges(IFolder repositoryFolder);
+
+        /// <summary>
+        /// Pull in latest changes
+        /// </summary>
+        /// <param name="repositoryFolder"></param>
+        /// <param name="author"></param>
+        /// <param name="eMail"></param>
+        void Pull(IFolder repositoryFolder, string author, string eMail);
     }
 }

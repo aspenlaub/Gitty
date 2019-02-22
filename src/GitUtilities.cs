@@ -185,5 +185,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
                 errorsAndInfos.Errors.Add(string.Format(Properties.Resources.FolderCouldNotBeCreated, folder.SubFolder("Cake").FullName));
             }
         }
+
+        public void Pull(IFolder repositoryFolder, string author, string eMail) {
+            using (var repo = new Repository(repositoryFolder.FullName)) {
+                var options = new PullOptions();
+                var signature = new Signature(new Identity(author, eMail), DateTimeOffset.Now);
+                Commands.Pull(repo, signature, options);
+            }
+        }
     }
 }
