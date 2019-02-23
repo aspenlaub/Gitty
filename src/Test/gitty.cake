@@ -1,4 +1,5 @@
-﻿#addin nuget:?package=System.Runtime.Loader&version=4.0.0.0
+﻿#addin nuget:?P
+#addin nuget:?package=System.Runtime.Loader&version=4.0.0.0
 #addin nuget:https://www.aspenlaub.net/nuget/?package=Aspenlaub.Net.GitHub.CSharp.Gitty&loaddependencies=true&version=1.0.6990.17562
 
 using Microsoft.Extensions.DependencyInjection;
