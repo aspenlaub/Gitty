@@ -1,6 +1,6 @@
 ﻿#addin nuget:?package=Cake.Git&version=0.19.0
 #addin nuget:?package=System.Runtime.Loader&version=4.0.0.0
-#addin nuget:https://www.aspenlaub.net/nuget/?package=Aspenlaub.Net.GitHub.CSharp.Gitty&loaddependencies=true&version=1.0.6990.17562
+#addin nuget:https://www.aspenlaub.net/nuget/?package=Aspenlaub.Net.GitHub.CSharp.Gitty&loaddependencies=true&version=1.0.6993.22085
 
 using Microsoft.Extensions.DependencyInjection;
 using Autofac;

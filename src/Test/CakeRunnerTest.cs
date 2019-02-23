@@ -105,7 +105,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.IsTrue(errorsAndInfos.Infos.Any(i => i.Contains("This is an alternative target")));
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void CanCallScriptUsingGittyAsAddin() {
             var errorsAndInfos = new ErrorsAndInfos();
 
