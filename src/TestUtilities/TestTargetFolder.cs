@@ -16,7 +16,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
         }
 
         public IFolder Folder() {
-            return new Folder(Path.GetTempPath() + TestClassId + @"\" + SolutionId);
+            return new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(TestClassId).SubFolder(SolutionId);
         }
 
         public bool Exists() {
@@ -48,7 +48,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
         }
 
         public IFolder CakeFolder() {
-            return new Folder(Path.GetTempPath() + TestClassId + @"\Cake");
+            return new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(TestClassId).SubFolder("Cake");
         }
     }
 }

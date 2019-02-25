@@ -23,9 +23,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         [TestInitialize]
         public void Initialize() {
             vContainer = new ContainerBuilder().UseGitty().UseGittyTestUtilities().Build();
-            var checkOutFolder = Path.GetTempPath() + nameof(GitHubUtilitiesTest) + '\\';
-            MasterFolder = new Folder(checkOutFolder + @"PakledCore-Master");
-            DevelopmentFolder = new Folder(checkOutFolder + @"PakledCore-Development");
+            var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitHubUtilitiesTest));
+            MasterFolder = checkOutFolder.SubFolder("PakledCore-Master");
+            DevelopmentFolder = checkOutFolder.SubFolder("PakledCore-Development");
 
             CleanUp();
             CloneRepository(MasterFolder, "master");

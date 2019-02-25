@@ -58,11 +58,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         }
 
         protected static IFolder CakeFolder() {
-            return new Folder(Path.GetTempPath() + @"Cake");
+            return new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder("Cake");
         }
 
         protected static IFolder CakeScriptsFolder() {
-            return new Folder(Path.GetTempPath() + nameof(CakeRunnerTest));
+            return new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(CakeRunnerTest));
         }
 
         [TestMethod]

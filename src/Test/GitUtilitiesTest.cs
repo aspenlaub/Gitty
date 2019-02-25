@@ -39,10 +39,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestInitialize]
         public void Initialize() {
-            var checkOutFolder = Path.GetTempPath() + nameof(GitUtilitiesTest) + '\\';
-            DevelopmentFolder = new Folder(checkOutFolder + @"PakledCore-Development");
-            MasterFolder = new Folder(checkOutFolder + @"PakledCore-Master");
-            NoGitFolder = new Folder(checkOutFolder + @"NoGit");
+            var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitUtilitiesTest));
+            DevelopmentFolder = checkOutFolder.SubFolder("PakledCore-Development");
+            MasterFolder = checkOutFolder.SubFolder("PakledCore-Master");
+            NoGitFolder = checkOutFolder.SubFolder("NoGit");
             DoNotPullFolder.Delete();
 
             CleanUp();
