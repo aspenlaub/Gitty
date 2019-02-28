@@ -138,9 +138,4 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             }
         }
     }
-
-    public class YesNoInconclusive {
-        public bool YesNo { get; set; }
-        public bool Inconclusive { get; set; }
-    }
 }
