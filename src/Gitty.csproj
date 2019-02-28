@@ -14,14 +14,20 @@
     <NuspecFile>Gitty.nuspec</NuspecFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="CakeGit\**" />
+    <Compile Remove="Cake\**" />
     <Compile Remove="Test\**" />
+    <EmbeddedResource Remove="CakeGit\**" />
+    <EmbeddedResource Remove="Cake\**" />
     <EmbeddedResource Remove="Test\**" />
+    <None Remove="CakeGit\**" />
+    <None Remove="Cake\**" />
     <None Remove="Test\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.LibGit2Sharp" Version="1.0.6998.18643" />
     <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.6982.33881" />
     <PackageReference Include="Autofac" Version="4.9.1" />
+    <PackageReference Include="LibGit2Sharp" Version="0.25.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
   </ItemGroup>
