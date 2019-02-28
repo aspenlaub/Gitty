@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gitty", "Gitty.csproj", "{7
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gitty.Test", "Test\Gitty.Test.csproj", "{72A0F231-301E-4418-9779-A3328F9CD233}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gitty.Cake", "Cake\Gitty.Cake.csproj", "{ED6F01E1-1A5A-42C5-A9E0-B67F7BC3FF77}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gitty.Cake.Test", "Cake\Test\Gitty.Cake.Test.csproj", "{4721BEE7-5BA3-4069-B13B-9EAF45AD2851}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{72A0F231-301E-4418-9779-A3328F9CD233}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72A0F231-301E-4418-9779-A3328F9CD233}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72A0F231-301E-4418-9779-A3328F9CD233}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ED6F01E1-1A5A-42C5-A9E0-B67F7BC3FF77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ED6F01E1-1A5A-42C5-A9E0-B67F7BC3FF77}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ED6F01E1-1A5A-42C5-A9E0-B67F7BC3FF77}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ED6F01E1-1A5A-42C5-A9E0-B67F7BC3FF77}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4721BEE7-5BA3-4069-B13B-9EAF45AD2851}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4721BEE7-5BA3-4069-B13B-9EAF45AD2851}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4721BEE7-5BA3-4069-B13B-9EAF45AD2851}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4721BEE7-5BA3-4069-B13B-9EAF45AD2851}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
