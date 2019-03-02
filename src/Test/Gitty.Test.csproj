@@ -24,7 +24,7 @@
     <EmbeddedResource Include="success.cake" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.6998.34874" />
+    <PackageReference Include="Aspenlaub.Net.GitHub.CSharp.Pegh" Version="1.0.6998.39512" />
     <PackageReference Include="Autofac" Version="4.9.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
