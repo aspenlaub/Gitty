@@ -25,10 +25,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         public static void Initialize(TestContext context) {
             vContainer = new ContainerBuilder().UseGitty().UseGittyTestUtilities().Build();
             DeleteFolder(CakeFolder());
-            var cakeInstaller = vContainer.Resolve<ICakeInstaller>();
-            cakeInstaller.InstallCake(CakeFolder(), out var errorsAndInfos);
+            var errorsAndInfos = new ErrorsAndInfos();
+            vContainer.Resolve<ICakeInstaller>().DownloadReadyToCake(CakeFolder().SubFolder("tools"), errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-            CakeExeFileFullName = cakeInstaller.CakeExeFileFullName(CakeFolder());
+
+            CakeExeFileFullName = CakeFolder().SubFolder("tools").SubFolder("Cake").FullName + @"\Cake.exe";
 
             ScriptsFolder = CakeScriptsFolder();
             DeleteFolder(ScriptsFolder);

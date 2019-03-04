@@ -7,6 +7,12 @@ using LibGit2Sharp;
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces {
     public interface IGitUtilities {
         /// <summary>
+        /// Return a folder where reusable downloads can be stored
+        /// </summary>
+        /// <returns></returns>
+        string DownloadFolder();
+
+        /// <summary>
         /// Given a git check-out folder, what is the friendly branch name?
         /// </summary>
         /// <param name="folder"></param>
@@ -17,23 +23,25 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces {
         /// Cover of Repository.Clone
         /// </summary>
         /// <param name="url"></param>
+        /// <param name="branch"></param>
         /// <param name="folder"></param>
         /// <param name="cloneOptions"></param>
         /// <param name="useCache"></param>
         /// <param name="errorsAndInfos"></param>
-        void Clone(string url, IFolder folder, CloneOptions cloneOptions, bool useCache, IErrorsAndInfos errorsAndInfos);
+        void Clone(string url, string branch, IFolder folder, CloneOptions cloneOptions, bool useCache, IErrorsAndInfos errorsAndInfos);
 
         /// <summary>
         /// Cover of Repository.Clone
         /// </summary>
         /// <param name="url"></param>
+        /// <param name="branch"></param>
         /// <param name="folder"></param>
         /// <param name="cloneOptions"></param>
         /// <param name="useCache"></param>
         /// <param name="extraCacheCondition"></param>
         /// <param name="onCloned"></param>
         /// <param name="errorsAndInfos"></param>
-        void Clone(string url, IFolder folder, CloneOptions cloneOptions, bool useCache, Func<bool> extraCacheCondition, Action onCloned, IErrorsAndInfos errorsAndInfos);
+        void Clone(string url, string branch, IFolder folder, CloneOptions cloneOptions, bool useCache, Func<bool> extraCacheCondition, Action onCloned, IErrorsAndInfos errorsAndInfos);
 
         /// <summary>
         /// Return the sha of the latest commit
@@ -65,13 +73,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces {
         /// <param name="name"></param>
         /// <param name="errorsAndInfos"></param>
         void IdentifyOwnerAndName(IFolder repositoryFolder, out string owner, out string name, IErrorsAndInfos errorsAndInfos);
-
-        /// <summary>
-        /// Download and unpack PinnedCakeVersion (see CakeRunner) so that we do not need to install it using a powershell script
-        /// </summary>
-        /// <param name="folder"></param>
-        /// <param name="errorsAndInfos"></param>
-        void DownloadReadyToCake(IFolder folder, IErrorsAndInfos errorsAndInfos);
 
         /// <summary>
         /// Reset repository to a specific head tip sha and remove untracked files

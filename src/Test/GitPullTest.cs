@@ -42,7 +42,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             var cakeRunner = vContainer.Resolve<ICakeRunner>();
             var errorsAndInfos = new ErrorsAndInfos();
             var url = "https://github.com/aspenlaub/" + ChabStandardTarget.SolutionId + ".git";
-            gitUtilities.Clone(url, ChabStandardTarget.Folder(), new CloneOptions { BranchName = "master" }, true, errorsAndInfos);
+            gitUtilities.Clone(url, "master", ChabStandardTarget.Folder(), new CloneOptions { BranchName = "master" }, true, errorsAndInfos);
             cakeRunner.VerifyCakeVersion(ChabStandardTarget.Folder().SubFolder("tools"), errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
@@ -29,13 +28,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             return "";
         }
 
-        public void Clone(string url, IFolder folder, CloneOptions cloneOptions, bool useCache, IErrorsAndInfos errorsAndInfos) {
-            Clone(url, folder, cloneOptions, useCache, () => true, () => { }, errorsAndInfos);
+        public void Clone(string url, string branch, IFolder folder, CloneOptions cloneOptions, bool useCache, IErrorsAndInfos errorsAndInfos) {
+            Clone(url, branch, folder, cloneOptions, useCache, () => true, () => { }, errorsAndInfos);
         }
 
-        public void Clone(string url, IFolder folder, CloneOptions cloneOptions, bool useCache, Func<bool> extraCacheCondition, Action onCloned, IErrorsAndInfos errorsAndInfos) {
-            var canCloneBeUsed = useCache && CloneFromCache(url, folder);
-            var zipFileName = CloneZipFileName(url);
+        public void Clone(string url, string branch, IFolder folder, CloneOptions cloneOptions, bool useCache, Func<bool> extraCacheCondition, Action onCloned, IErrorsAndInfos errorsAndInfos) {
+            var canCloneBeUsed = useCache && CloneFromCache(url, branch, folder);
+            var zipFileName = CloneZipFileName(url, branch);
             if (canCloneBeUsed && !extraCacheCondition()) {
                 canCloneBeUsed = false;
                 if (folder.Exists()) {
@@ -56,10 +55,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             fastZip.CreateZip(zipFileName, folder.FullName, true, "");
         }
 
-        protected bool CloneFromCache(string url, IFolder folder) {
+        protected bool CloneFromCache(string url, string branch, IFolder folder) {
             DeleteOldDownloadFiles("*---*.*");
 
-            var zipFileName = CloneZipFileName(url);
+            var zipFileName = CloneZipFileName(url, branch);
             if (!File.Exists(zipFileName)) { return false; }
 
             var fastZip = new FastZip();
@@ -67,11 +66,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             return true;
         }
 
-        private static string CloneZipFileName(string url) {
-            return DownloadFolder() + '\\' + url.Replace(':', '-').Replace('/', '-').Replace('.', '-') + ".zip";
+        private string CloneZipFileName(string url, string branch) {
+            return DownloadFolder() + '\\' + url.Replace(':', '-').Replace('/', '-').Replace('.', '-') + (branch == "master" ? "" : '-' + branch) + ".zip";
         }
 
-        private static string DownloadFolder() {
+        public string DownloadFolder() {
             var downloadFolder = Path.GetTempPath() + @"\AspenlaubDownloads";
             if (!Directory.Exists(downloadFolder)) {
                 Directory.CreateDirectory(downloadFolder);
@@ -102,11 +101,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             }
         }
 
-        protected static void DeleteOldDownloadFiles(string wildcard) {
+        protected void DeleteOldDownloadFiles(string wildcard) {
             var downloadFolder = DownloadFolder();
             if (!Directory.Exists(downloadFolder)) { return; }
 
-            foreach (var file in Directory.GetFiles(downloadFolder, wildcard).Where(f => File.GetLastWriteTime(f).AddMinutes(30) < DateTime.Now)) {
+            foreach (var file in Directory.GetFiles(downloadFolder, wildcard).Where(f => File.GetLastWriteTime(f).AddDays(1) < DateTime.Now)) {
                 File.Delete(file);
             }
         }
@@ -159,30 +158,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
                 }
 
                 name = name.Substring(0, name.Length - 4);
-            }
-        }
-
-        public void DownloadReadyToCake(IFolder folder, IErrorsAndInfos errorsAndInfos) {
-            DeleteOldDownloadFiles($"cake.{CakeRunner.PinnedCakeVersion}.zip");
-            var downloadFolder = DownloadFolder();
-            var downloadedZipFileFullName = downloadFolder + $"\\cake.{CakeRunner.PinnedCakeVersion}.zip";
-            if (!File.Exists(downloadedZipFileFullName)) {
-                var url = $"https://www.aspenlaub.net/Github/cake.{CakeRunner.PinnedCakeVersion}.zip";
-                using (var client = new WebClient()) {
-                    client.DownloadFile(url, downloadedZipFileFullName);
-                }
-
-                if (!File.Exists(downloadedZipFileFullName)) {
-                    errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CouldNotDownload, url));
-                }
-            }
-
-            using (var zipStream = new FileStream(downloadedZipFileFullName, FileMode.Open, FileAccess.Read, FileShare.Read)) {
-                var fastZip = new FastZip();
-                fastZip.ExtractZip(zipStream, folder.FullName, FastZip.Overwrite.Never, s => { return true; }, null, null, true, true);
-                if (folder.SubFolder("Cake").Exists()) { return; }
-
-                errorsAndInfos.Errors.Add(string.Format(Properties.Resources.FolderCouldNotBeCreated, folder.SubFolder("Cake").FullName));
             }
         }
 

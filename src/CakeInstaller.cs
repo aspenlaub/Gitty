@@ -1,12 +1,11 @@
-﻿using System.IO;
-using System.Linq;
-using System.Xml.Linq;
-using System.Xml.XPath;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
-using LibGit2Sharp;
+using ICSharpCode.SharpZipLib.Zip;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
     public class CakeInstaller : ICakeInstaller {
@@ -16,37 +15,48 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             vGitUtilities = gitUtilities;
         }
 
-        public void InstallCake(IFolder cakeFolder, out IErrorsAndInfos errorsAndInfos) {
+        public void InstallCake(IFolder toolsParentFolder, out IErrorsAndInfos errorsAndInfos) {
             errorsAndInfos = new ErrorsAndInfos();
-            const string url = "https://github.com/cake-build/example";
-            var fixCakeErrorsAndInfos = new ErrorsAndInfos();
-            vGitUtilities.Clone(url, cakeFolder, new CloneOptions { BranchName = "master" }, true, () => File.Exists(CakeExeFileFullName(cakeFolder)), () => FixCakeVersionAndDownloadReadyToCake(cakeFolder, fixCakeErrorsAndInfos), errorsAndInfos);
-            if (fixCakeErrorsAndInfos.AnyErrors() && !errorsAndInfos.AnyErrors()) {
-                errorsAndInfos = fixCakeErrorsAndInfos;
-            }
+            DownloadReadyToCake(toolsParentFolder.SubFolder(@"tools"), errorsAndInfos);
         }
 
-        private void FixCakeVersionAndDownloadReadyToCake(IFolder cakeFolder, IErrorsAndInfos errorsAndInfos) {
-            var packagesConfigFileFullName = cakeFolder.SubFolder("tools").FullName + @"\packages.config";
-            var document = XDocument.Load(packagesConfigFileFullName);
-            var element = document.XPathSelectElements("/packages/package").FirstOrDefault(e => e.Attribute("id")?.Value == "Cake");
-            if (element == null) {
-                errorsAndInfos.Errors.Add("Could not find package element");
-                return;
-            }
-            var attribute = element.Attribute("version");
-            if (attribute == null) {
-                errorsAndInfos.Errors.Add("Could not find version attribute");
-                return;
-            }
-            attribute.SetValue(CakeRunner.PinnedCakeVersion);
-            document.Save(packagesConfigFileFullName);
-
-            vGitUtilities.DownloadReadyToCake(cakeFolder.SubFolder(@"tools"), errorsAndInfos);
+        public string CakeExeFileFullName(IFolder toolsParentFolder) {
+            return toolsParentFolder.SubFolder("tools").SubFolder("Cake").FullName + @"\cake.exe";
         }
 
-        public string CakeExeFileFullName(IFolder cakeFolder) {
-            return cakeFolder.SubFolder("tools").SubFolder("Cake").FullName + @"\cake.exe";
+        public void DownloadReadyToCake(IFolder toolsFolder, IErrorsAndInfos errorsAndInfos) {
+            var downloadFolder = vGitUtilities.DownloadFolder();
+            var downloadedZipFileFullName = downloadFolder + $"\\cake.{CakeRunner.PinnedCakeVersion}.zip";
+            if (!File.Exists(downloadedZipFileFullName)) {
+                var url = $"https://www.aspenlaub.net/Github/cake.{CakeRunner.PinnedCakeVersion}.zip";
+                using (var client = new WebClient()) {
+                    client.DownloadFile(url, downloadedZipFileFullName);
+                }
+
+                if (!File.Exists(downloadedZipFileFullName)) {
+                    errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CouldNotDownload, url));
+                }
+            }
+
+            using (var zipStream = new FileStream(downloadedZipFileFullName, FileMode.Open, FileAccess.Read, FileShare.Read)) {
+                var fastZip = new FastZip();
+                fastZip.ExtractZip(zipStream, toolsFolder.FullName, FastZip.Overwrite.Never, s => { return true; }, null, null, true, true);
+                if (!toolsFolder.SubFolder("Cake").Exists()) {
+                    errorsAndInfos.Errors.Add(string.Format(Properties.Resources.FolderCouldNotBeCreated, toolsFolder.SubFolder("Cake").FullName));
+                    return;
+                }
+            }
+
+            var packagesConfigFileName = toolsFolder.FullName + @"\packages.config";
+            if (File.Exists(packagesConfigFileName)) { return; }
+
+            File.WriteAllLines(packagesConfigFileName, new List<string> {
+                "<?xml version=\"1.0\" encoding=\"utf-8\"?>",
+                "<packages>",
+                "<package id=\"Cake\" version=\"" + CakeRunner.PinnedCakeVersion + "\" />",
+                "</packages>"
+            });
         }
+
     }
 }

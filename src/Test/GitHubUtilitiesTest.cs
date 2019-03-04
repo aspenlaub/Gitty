@@ -19,17 +19,22 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
     public class GitHubUtilitiesTest {
         protected IFolder MasterFolder, DevelopmentFolder;
         private static IContainer vContainer;
+        private IGitUtilities vGitUtilities;
 
         [TestInitialize]
         public void Initialize() {
             vContainer = new ContainerBuilder().UseGitty().UseGittyTestUtilities().Build();
+            vGitUtilities = vContainer.Resolve<IGitUtilities>();
             var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitHubUtilitiesTest));
             MasterFolder = checkOutFolder.SubFolder("PakledCore-Master");
             DevelopmentFolder = checkOutFolder.SubFolder("PakledCore-Development");
 
             CleanUp();
-            CloneRepository(MasterFolder, "master");
-            CloneRepository(DevelopmentFolder, "do-not-pull-from-me");
+            var errorsAndInfos = new ErrorsAndInfos();
+            CloneRepository(MasterFolder, "master", errorsAndInfos);
+            Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
+            CloneRepository(DevelopmentFolder, "do-not-pull-from-me", errorsAndInfos);
+            Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         }
 
         [TestCleanup]
@@ -40,7 +45,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             }
         }
 
-        private static void CloneRepository(IFolder folder, string branch) {
+        private void CloneRepository(IFolder folder, string branch, IErrorsAndInfos errorsAndInfos) {
             if (folder.GitSubFolder().Exists()) {
                 return;
             }
@@ -52,7 +57,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             }
 
             const string url = "https://github.com/aspenlaub/PakledCore.git";
-            Repository.Clone(url, folder.FullName, new CloneOptions { BranchName = branch });
+            vGitUtilities.Clone(url, branch, new Folder(folder.FullName), new CloneOptions { BranchName = branch }, true, errorsAndInfos);
         }
 
         [TestMethod]
