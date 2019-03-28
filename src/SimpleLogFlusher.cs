@@ -14,16 +14,15 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
 
         public void Flush(ISimpleLogger logger) {
             lock (LockObject) {
-                var ids = logger.LogEntries.Where(e => !e.Flushed).Select(e => e.Stack[0]).Distinct().ToList();
+                var logEntries = logger.FindLogEntries(e => !e.Flushed);
+                var ids = logEntries.Select(e => e.Stack[0]).Distinct().ToList();
                 var folder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubLogs");
                 folder.CreateIfNecessary();
                 foreach (var id in ids) {
                     var fileName = folder.FullName + '\\' + id + ".log";
-                    var entries = logger.LogEntries.Where(e => !e.Flushed && e.Stack[0] == id).ToList();
+                    var entries = logEntries.Where(e => !e.Flushed && e.Stack[0] == id).ToList();
                     File.AppendAllLines(fileName, entries.Select(Format));
-                    entries.ForEach(e => {
-                        e.Flushed = true;
-                    });
+                    logger.OnEntriesFlushed(entries);
                     FileNames.Add(fileName);
                 }
             }

@@ -91,8 +91,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.IsFalse(errorsAndInfos.Infos.Any(m => m.Contains(ThisIsNotCake)));
             var logger = vContainer.Resolve<ISimpleLogger>();
             Assert.IsNotNull(logger);
-            Assert.IsTrue(errorsAndInfos.Errors.All(e => logger.LogEntries.Any(le => le.LogLevel == LogLevel.Error && le.Message.Contains(e))));
-            Assert.IsTrue(errorsAndInfos.Infos.All(i => logger.LogEntries.Any(le => le.LogLevel == LogLevel.Information && le.Message.Contains(i))));
+            var logEntries = logger.FindLogEntries(e => true);
+            Assert.IsTrue(errorsAndInfos.Errors.All(e => logEntries.Any(le => le.LogLevel == LogLevel.Error && le.Message.Contains(e))));
+            Assert.IsTrue(errorsAndInfos.Infos.All(i => logEntries.Any(le => le.LogLevel == LogLevel.Information && le.Message.Contains(i))));
         }
 
         [TestMethod]

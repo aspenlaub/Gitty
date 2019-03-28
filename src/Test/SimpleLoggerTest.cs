@@ -22,7 +22,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
                 }
             }
 
-            var logEntries = sut.LogEntries;
+            var logEntries = sut.FindLogEntries(e => true);
             Assert.AreEqual(1, logEntries.Count);
             Assert.AreEqual(LogLevel.Information, logEntries[0].LogLevel);
             Assert.AreEqual(2, logEntries[0].Stack.Count);
@@ -35,7 +35,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             var fileName = fileNames.First();
             Assert.IsTrue(File.Exists(fileName));
             Assert.IsTrue(fileName.EndsWith(@"\Scope(A).log"));
-            Assert.AreEqual(0, sut.LogEntries.Count(e => !e.Flushed));
+            Assert.AreEqual(0, logEntries.Count(e => !e.Flushed));
         }
 
         [TestMethod]
