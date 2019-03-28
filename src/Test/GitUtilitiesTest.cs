@@ -21,7 +21,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         protected static TestTargetInstaller TargetInstaller;
         protected static TestTargetRunner TargetRunner;
         private static IContainer vContainer;
-        private IGitUtilities Sut;
+        private IGitUtilities vSut;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context) {
@@ -40,7 +40,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestInitialize]
         public void Initialize() {
-            Sut = vContainer.Resolve<IGitUtilities>();
+            vSut = vContainer.Resolve<IGitUtilities>();
             var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitUtilitiesTest));
             DevelopmentFolder = checkOutFolder.SubFolder("PakledCore-Development");
             MasterFolder = checkOutFolder.SubFolder("PakledCore-Master");
@@ -80,21 +80,21 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             }
 
             const string url = "https://github.com/aspenlaub/PakledCore.git";
-            Sut.Clone(url, branch, new Folder(folder.FullName), new CloneOptions { BranchName = branch }, true, errorsAndInfos);
+            vSut.Clone(url, branch, new Folder(folder.FullName), new CloneOptions { BranchName = branch }, true, errorsAndInfos);
         }
 
         [TestMethod]
         public void CanIdentifyCheckedOutBranch() {
-            Assert.AreEqual("development", Sut.CheckedOutBranch(DevelopmentFolder));
+            Assert.AreEqual("development", vSut.CheckedOutBranch(DevelopmentFolder));
             var developmentSubFolder = DevelopmentFolder.SubFolder("src").SubFolder("Test");
-            Assert.AreEqual("development", Sut.CheckedOutBranch(developmentSubFolder));
-            Assert.AreEqual("master", Sut.CheckedOutBranch(MasterFolder));
-            Assert.AreEqual("", Sut.CheckedOutBranch(NoGitFolder));
+            Assert.AreEqual("development", vSut.CheckedOutBranch(developmentSubFolder));
+            Assert.AreEqual("master", vSut.CheckedOutBranch(MasterFolder));
+            Assert.AreEqual("", vSut.CheckedOutBranch(NoGitFolder));
         }
 
         [TestMethod]
         public void CanGetHeadTipIdSha() {
-            var headTipIdSha = Sut.HeadTipIdSha(MasterFolder);
+            var headTipIdSha = vSut.HeadTipIdSha(MasterFolder);
             Assert.IsFalse(string.IsNullOrEmpty(headTipIdSha));
             Assert.IsTrue(headTipIdSha.Length >= 40);
         }
@@ -102,24 +102,24 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         [TestMethod]
         public void CanDetermineUncommittedChanges() {
             var errorsAndInfos = new ErrorsAndInfos();
-            Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+            vSut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             File.WriteAllText(MasterFolder.FullName + @"\change.cs", @"This is not a change");
-            Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+            vSut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
             Assert.IsTrue(errorsAndInfos.Errors.Any(e => e.Contains(@"change.cs")));
         }
 
         [TestMethod]
         public void CanUndoUncommittedChanges() {
             var errorsAndInfos = new ErrorsAndInfos();
-            Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+            vSut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             File.WriteAllText(MasterFolder.FullName + @"\change.cs", @"This is not a change");
-            Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+            vSut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
             Assert.IsTrue(errorsAndInfos.Errors.Any(e => e.Contains(@"change.cs")));
             errorsAndInfos = new ErrorsAndInfos();
-            Sut.Reset(MasterFolder, Sut.HeadTipIdSha(MasterFolder), errorsAndInfos);
-            Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+            vSut.Reset(MasterFolder, vSut.HeadTipIdSha(MasterFolder), errorsAndInfos);
+            vSut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         }
 
@@ -128,18 +128,18 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             var errorsAndInfos = new ErrorsAndInfos();
             CloneRepository(DoNotPullFolder.Folder(), "do-not-pull-from-me", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-            Assert.IsFalse(Sut.IsBranchAheadOfMaster(MasterFolder));
+            Assert.IsFalse(vSut.IsBranchAheadOfMaster(MasterFolder));
             vContainer.Resolve<CakeBuildUtilities>().CopyCakeScriptEmbeddedInAssembly(Assembly.GetExecutingAssembly(), BuildCake.Standard, DoNotPullFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             TargetRunner.RunBuildCakeScript(BuildCake.Standard, DoNotPullFolder, "CleanRestorePull", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-            Assert.IsTrue(Sut.IsBranchAheadOfMaster(DoNotPullFolder.Folder()));
+            Assert.IsTrue(vSut.IsBranchAheadOfMaster(DoNotPullFolder.Folder()));
         }
 
         [TestMethod]
         public void CanIdentifyUrlOwnerAndName() {
             var errorsAndInfos = new ErrorsAndInfos();
-            Sut.IdentifyOwnerAndName(MasterFolder, out var owner, out var name, errorsAndInfos);
+            vSut.IdentifyOwnerAndName(MasterFolder, out var owner, out var name, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             Assert.AreEqual("aspenlaub", owner);
             Assert.AreEqual("PakledCore", name);

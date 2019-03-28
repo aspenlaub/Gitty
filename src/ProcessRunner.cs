@@ -1,37 +1,52 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using Aspenlaub.Net.GitHub.CSharp.Gitty.Entities;
+using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
     public class ProcessRunner : IProcessRunner {
+        private readonly ISimpleLogger vSimpleLogger;
+
+        public ProcessRunner(ISimpleLogger simpleLogger) {
+            vSimpleLogger = simpleLogger;
+        }
+
         public void RunProcess(string executableFullName, string arguments, string workingFolder, IErrorsAndInfos errorsAndInfos) {
-            using (var process = CreateProcess(executableFullName, arguments, workingFolder)) {
-                var outputWaitHandle = new AutoResetEvent(false);
-                var errorWaitHandle = new AutoResetEvent(false);
-                process.OutputDataReceived += (sender, e) => {
-                    OnDataReceived(e, outputWaitHandle, errorsAndInfos.Infos);
-                };
-                process.ErrorDataReceived += (sender, e) => {
-                    OnDataReceived(e, errorWaitHandle, errorsAndInfos.Errors);
-                };
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                process.WaitForExit();
-                outputWaitHandle.WaitOne();
-                errorWaitHandle.WaitOne();
+            var id = Guid.NewGuid().ToString();
+            using (vSimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner), id))) {
+                vSimpleLogger.LogInformation($"Running {executableFullName} with arguments {arguments} in {workingFolder}");
+                using (var process = CreateProcess(executableFullName, arguments, workingFolder)) {
+                    var outputWaitHandle = new AutoResetEvent(false);
+                    var errorWaitHandle = new AutoResetEvent(false);
+                    process.OutputDataReceived += (sender, e) => {
+                        OnDataReceived(e, outputWaitHandle, errorsAndInfos.Infos, LogLevel.Information);
+                    };
+                    process.ErrorDataReceived += (sender, e) => {
+                        OnDataReceived(e, errorWaitHandle, errorsAndInfos.Errors, LogLevel.Error);
+                    };
+                    process.Start();
+                    process.BeginOutputReadLine();
+                    process.BeginErrorReadLine();
+                    process.WaitForExit();
+                    outputWaitHandle.WaitOne();
+                    errorWaitHandle.WaitOne();
+                }
             }
         }
 
-        private static void OnDataReceived(DataReceivedEventArgs e, EventWaitHandle waitHandle, ICollection<string> messages) {
+        private void OnDataReceived(DataReceivedEventArgs e, EventWaitHandle waitHandle, ICollection<string> messages, LogLevel logLevel) {
             if (e.Data == null) {
                 waitHandle.Set();
                 return;
             }
 
             messages.Add(e.Data);
+            vSimpleLogger.Log(logLevel, e.Data);
         }
 
         private static Process CreateProcess(string executableFullName, string arguments, string workingFolder) {

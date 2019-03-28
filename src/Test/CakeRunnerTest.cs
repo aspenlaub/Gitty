@@ -9,6 +9,7 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Autofac;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IContainer = Autofac.IContainer;
 
@@ -88,6 +89,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Duration")));
             Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"00:00:00")));
             Assert.IsFalse(errorsAndInfos.Infos.Any(m => m.Contains(ThisIsNotCake)));
+            var logger = vContainer.Resolve<ISimpleLogger>();
+            Assert.IsNotNull(logger);
+            Assert.IsTrue(errorsAndInfos.Errors.All(e => logger.LogEntries.Any(le => le.LogLevel == LogLevel.Error && le.Message.Contains(e))));
+            Assert.IsTrue(errorsAndInfos.Infos.All(i => logger.LogEntries.Any(le => le.LogLevel == LogLevel.Information && le.Message.Contains(i))));
         }
 
         [TestMethod]
