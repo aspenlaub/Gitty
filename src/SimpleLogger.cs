@@ -49,9 +49,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
         }
 
         public IList<ISimpleLogEntry> FindLogEntries(Func<ISimpleLogEntry, bool> condition) {
-            var logEntries = new List<ISimpleLogEntry>();
-            logEntries.AddRange(vLogEntries.Where(condition));
-            return logEntries;
+            lock (LockObject) {
+                var logEntries = new List<ISimpleLogEntry>();
+                logEntries.AddRange(vLogEntries.Where(condition));
+                return logEntries;
+            }
         }
 
         public void OnEntriesFlushed(IList<ISimpleLogEntry> entries) {
