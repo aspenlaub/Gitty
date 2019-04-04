@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
@@ -20,6 +21,8 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("c15f4366-c4db-4d74-83e8-f155fe5d3bc7")]
+
+[assembly:InternalsVisibleTo("Aspenlaub.Net.GitHub.CSharp.Gitty.Test")]
 
 // Version information for an assembly consists of the following four values:
 //

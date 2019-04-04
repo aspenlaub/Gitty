@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Entities;
@@ -14,7 +15,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestMethod]
         public void CanUseLogger() {
-            ISimpleLogFlusher flusher = new SimpleLogFlusher();
+            var flusher = new SimpleLogFlusher();
             ISimpleLogger sut = new SimpleLogger(flusher);
             using (sut.BeginScope(SimpleLoggingScopeId.Create("Scope", "A"))) {
                 using (sut.BeginScope(SimpleLoggingScopeId.Create("Scope", "B"))) {
@@ -36,6 +37,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.IsTrue(File.Exists(fileName));
             Assert.IsTrue(fileName.EndsWith(@"\Scope(A).log"));
             Assert.AreEqual(0, logEntries.Count(e => !e.Flushed));
+
+            File.SetLastWriteTime(fileName, DateTime.Now.AddHours(-25));
+            flusher.ResetCleanupTime();
+            flusher.Flush(sut);
+            Assert.IsFalse(File.Exists(fileName));
         }
 
         [TestMethod]
