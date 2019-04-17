@@ -35,6 +35,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
                     outputWaitHandle.WaitOne();
                     errorWaitHandle.WaitOne();
                 }
+
+                vSimpleLogger.LogInformation("Process completed");
             }
         }
 
