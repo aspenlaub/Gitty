@@ -20,20 +20,22 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             using (vSimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner), id))) {
                 vSimpleLogger.LogInformation($"Running {executableFullName} with arguments {arguments} in {workingFolder}");
                 using (var process = CreateProcess(executableFullName, arguments, workingFolder)) {
-                    var outputWaitHandle = new AutoResetEvent(false);
-                    var errorWaitHandle = new AutoResetEvent(false);
-                    process.OutputDataReceived += (sender, e) => {
-                        OnDataReceived(e, outputWaitHandle, errorsAndInfos.Infos, LogLevel.Information);
-                    };
-                    process.ErrorDataReceived += (sender, e) => {
-                        OnDataReceived(e, errorWaitHandle, errorsAndInfos.Errors, LogLevel.Error);
-                    };
-                    process.Start();
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
-                    process.WaitForExit();
-                    outputWaitHandle.WaitOne();
-                    errorWaitHandle.WaitOne();
+                    try {
+                        var outputWaitHandle = new AutoResetEvent(false);
+                        var errorWaitHandle = new AutoResetEvent(false);
+                        process.OutputDataReceived += (sender, e) => { OnDataReceived(e, outputWaitHandle, errorsAndInfos.Infos, LogLevel.Information); };
+                        process.ErrorDataReceived += (sender, e) => { OnDataReceived(e, errorWaitHandle, errorsAndInfos.Errors, LogLevel.Error); };
+                        process.Exited += (sender, e) => { vSimpleLogger.LogInformation("Process exited"); };
+                        process.Start();
+                        process.BeginOutputReadLine();
+                        process.BeginErrorReadLine();
+                        process.WaitForExit();
+                        outputWaitHandle.WaitOne();
+                        errorWaitHandle.WaitOne();
+                    } catch (Exception e) {
+                        errorsAndInfos.Errors.Add($"Process failed: {e.Message}");
+                        return;
+                    }
                 }
 
                 vSimpleLogger.LogInformation("Process completed");
