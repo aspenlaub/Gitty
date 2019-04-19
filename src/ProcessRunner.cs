@@ -29,7 +29,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
                         process.Start();
                         process.BeginOutputReadLine();
                         process.BeginErrorReadLine();
-                        process.WaitForExit();
+                        process.WaitForExit(int.MaxValue);
                         outputWaitHandle.WaitOne();
                         errorWaitHandle.WaitOne();
                     } catch (Exception e) {
