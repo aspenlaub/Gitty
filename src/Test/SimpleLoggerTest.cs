@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
+using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Autofac;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -46,7 +47,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestMethod]
         public void CanResolveInstance() {
-            var container = new ContainerBuilder().UseGitty().Build();
+            var container = new ContainerBuilder().UseGitty(new DummyCsArgumentPrompter()).Build();
             var logger = container.Resolve<ILogger>();
             Assert.IsNotNull(logger);
             Assert.IsTrue(logger is SimpleLogger);

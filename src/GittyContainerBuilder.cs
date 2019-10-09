@@ -1,5 +1,7 @@
-﻿using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
+﻿using Aspenlaub.Net.GitHub.CSharp.Dvin.Components;
+using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
+using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,7 +10,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
     public static class GittyContainerBuilder {
         private static readonly ISimpleLogger SimpleLogger = new SimpleLogger(new SimpleLogFlusher());
 
-        public static ContainerBuilder UseGitty(this ContainerBuilder builder) {
+        public static ContainerBuilder UseGitty(this ContainerBuilder builder, ICsArgumentPrompter csArgumentPrompter) {
+            builder.RegisterForPegh(csArgumentPrompter);
             builder.RegisterType<CakeInstaller>().As<ICakeInstaller>();
             builder.RegisterType<CakeRunner>().As<ICakeRunner>();
             builder.RegisterType<EmbeddedCakeScriptReader>().As<IEmbeddedCakeScriptReader>();
@@ -18,13 +21,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             builder.RegisterInstance(SimpleLogger);
             builder.RegisterInstance<ILogger>(SimpleLogger);
 
-            var componentProvider = new ComponentProvider();
-            builder.RegisterInstance(componentProvider.SecretRepository);
             return builder;
         }
 
         // ReSharper disable once UnusedMember.Global
-        public static IServiceCollection UseGitty(this IServiceCollection services) {
+        public static IServiceCollection UseGitty(this IServiceCollection services, ICsArgumentPrompter csArgumentPrompter) {
+            services.UseDvinAndPegh(csArgumentPrompter);
             services.AddTransient<ICakeInstaller, CakeInstaller>();
             services.AddTransient<ICakeRunner, CakeRunner>();
             services.AddTransient<IEmbeddedCakeScriptReader, EmbeddedCakeScriptReader>();
@@ -34,8 +36,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             services.AddSingleton(SimpleLogger);
             services.AddSingleton<ILogger>(SimpleLogger);
 
-            var componentProvider = new ComponentProvider();
-            services.AddSingleton(componentProvider.SecretRepository);
             return services;
         }
     }
