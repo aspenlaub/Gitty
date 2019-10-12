@@ -23,7 +23,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestInitialize]
         public void Initialize() {
-            vContainer = new ContainerBuilder().UseGitty(new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
+            vContainer = new ContainerBuilder().UseGittyDvinAndPegh(new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
             vGitUtilities = vContainer.Resolve<IGitUtilities>();
             var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitHubUtilitiesTest));
             MasterFolder = checkOutFolder.SubFolder("PakledCore-Master");

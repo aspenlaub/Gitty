@@ -1,6 +1,5 @@
 ﻿using Aspenlaub.Net.GitHub.CSharp.Dvin.Components;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
-using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,8 +9,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
     public static class GittyContainerBuilder {
         private static readonly ISimpleLogger SimpleLogger = new SimpleLogger(new SimpleLogFlusher());
 
-        public static ContainerBuilder UseGitty(this ContainerBuilder builder, ICsArgumentPrompter csArgumentPrompter) {
-            builder.RegisterForPegh(csArgumentPrompter);
+        public static ContainerBuilder UseGittyDvinAndPegh(this ContainerBuilder builder, ICsArgumentPrompter csArgumentPrompter) {
+            builder.UseDvinAndPegh(csArgumentPrompter);
             builder.RegisterType<CakeInstaller>().As<ICakeInstaller>();
             builder.RegisterType<CakeRunner>().As<ICakeRunner>();
             builder.RegisterType<EmbeddedCakeScriptReader>().As<IEmbeddedCakeScriptReader>();
@@ -25,7 +24,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
         }
 
         // ReSharper disable once UnusedMember.Global
-        public static IServiceCollection UseGitty(this IServiceCollection services, ICsArgumentPrompter csArgumentPrompter) {
+        public static IServiceCollection UseGittyDvinAndPegh(this IServiceCollection services, ICsArgumentPrompter csArgumentPrompter) {
             services.UseDvinAndPegh(csArgumentPrompter);
             services.AddTransient<ICakeInstaller, CakeInstaller>();
             services.AddTransient<ICakeRunner, CakeRunner>();
