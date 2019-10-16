@@ -47,7 +47,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestMethod]
         public void CanResolveInstance() {
-            var container = new ContainerBuilder().UseGittyDvinAndPegh(new DummyCsArgumentPrompter()).Build();
+            var container = new ContainerBuilder().UseGittyAndPegh(new DummyCsArgumentPrompter()).Build();
             var logger = container.Resolve<ILogger>();
             Assert.IsNotNull(logger);
             Assert.IsTrue(logger is SimpleLogger);

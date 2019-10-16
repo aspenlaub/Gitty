@@ -96,5 +96,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces {
         /// <param name="author"></param>
         /// <param name="eMail"></param>
         void Pull(IFolder repositoryFolder, string author, string eMail);
+
+        /// <summary>
+        /// Return all shas
+        /// </summary>
+        /// <param name="repositoryFolder"></param>
+        /// <returns></returns>
+        IList<string> AllIdShas(IFolder repositoryFolder);
     }
 }

@@ -168,5 +168,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
                 Commands.Pull(repo, signature, options);
             }
         }
+
+        public IList<string> AllIdShas(IFolder repositoryFolder) {
+            using (var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions())) {
+                return repo.Head.Commits.Select(c => c.Sha).ToList();
+            }
+        }
     }
 }

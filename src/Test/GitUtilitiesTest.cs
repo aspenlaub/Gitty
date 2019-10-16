@@ -25,7 +25,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context) {
-            vContainer = new ContainerBuilder().UseGittyDvinAndPegh(new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
+            vContainer = new ContainerBuilder().UseGittyAndPegh(new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
             TargetInstaller = vContainer.Resolve<TestTargetInstaller>();
             TargetRunner = vContainer.Resolve<TestTargetRunner>();
             TargetInstaller.DeleteCakeFolder(DoNotPullFolder);
@@ -144,5 +144,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.AreEqual("aspenlaub", owner);
             Assert.AreEqual("PakledCore", name);
         }
+
+        [TestMethod]
+        public void CanGetAllIdShas() {
+            var allIdShas = vSut.AllIdShas(MasterFolder);
+            Assert.IsTrue(allIdShas.Count > 50);
+            Assert.IsTrue(allIdShas.Contains(vSut.HeadTipIdSha(MasterFolder)));
+        }
+
     }
 }

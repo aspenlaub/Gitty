@@ -24,7 +24,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [ClassInitialize]
         public static void Initialize(TestContext context) {
-            vContainer = new ContainerBuilder().UseGittyDvinAndPegh(new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
+            vContainer = new ContainerBuilder().UseGittyAndPegh(new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
             DeleteFolder(CakeFolder());
             var errorsAndInfos = new ErrorsAndInfos();
             vContainer.Resolve<ICakeInstaller>().DownloadReadyToCake(CakeFolder().SubFolder("tools"), errorsAndInfos);
