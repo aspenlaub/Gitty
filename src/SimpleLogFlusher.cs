@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Microsoft.Extensions.Logging;
 
+[assembly: InternalsVisibleTo("Aspenlaub.Net.GitHub.CSharp.Gitty.Test")]
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
     public class SimpleLogFlusher : ISimpleLogFlusher {
         private static readonly object LockObject = new object();
