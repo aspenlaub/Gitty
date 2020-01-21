@@ -27,6 +27,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
             return Folder().FullName;
         }
 
+        public IFolder MasterBinFolder() {
+            return Folder().ParentFolder().SubFolder(SolutionId + @"Bin");
+        }
+
         public IFolder MasterDebugBinFolder() {
             return Folder().ParentFolder().SubFolder(SolutionId + @"Bin/Debug");
         }
@@ -42,7 +46,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
                 deleter.DeleteFolder(Folder());
             }
 
-            foreach (var folder in new[] { MasterDebugBinFolder(), MasterReleaseBinFolder() }.Where(folder => folder.Exists())) {
+            var folder = MasterBinFolder();
+            if (folder.Exists()) {
                 deleter.DeleteFolder(folder);
             }
         }
