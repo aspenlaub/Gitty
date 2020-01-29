@@ -16,7 +16,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
         public HashSet<string> FileNames { get; } = new HashSet<string>();
 
         public void Flush(ISimpleLogger logger) {
-            var folder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubLogs");
+            var folder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubLogs").SubFolder("Miscellaneous");
             folder.CreateIfNecessary();
 
             lock (LockObject) {
