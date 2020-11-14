@@ -111,13 +111,5 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsToString());
             Assert.IsTrue(errorsAndInfos.Infos.Any(i => i.Contains("This is an alternative target")));
         }
-
-        [TestMethod]
-        public void CanCallScriptUsingGittyAsAddin() {
-            var errorsAndInfos = new ErrorsAndInfos();
-
-            Sut.CallCake(CakeExeFileFullName, ScriptsFolder.FullName + @"\gitty.cake", "Default", errorsAndInfos);
-            Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsToString());
-        }
     }
 }

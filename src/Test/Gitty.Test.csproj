@@ -16,20 +16,18 @@
   <ItemGroup>
     <None Remove="build.cake" />
     <None Remove="failure.cake" />
-    <None Remove="gitty.cake" />
     <None Remove="success.cake" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\..\build.cake" Link="build.cake" />
     <EmbeddedResource Include="failure.cake" />
-    <EmbeddedResource Include="gitty.cake" />
     <EmbeddedResource Include="success.cake" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="5.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
