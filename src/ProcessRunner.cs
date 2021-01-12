@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Aspenlaub.Net.GitHub.CSharp.Gitty.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
+using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Microsoft.Extensions.Logging;
 
