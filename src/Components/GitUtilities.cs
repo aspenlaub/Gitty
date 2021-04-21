@@ -9,7 +9,7 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using ICSharpCode.SharpZipLib.Zip;
 using LibGit2Sharp;
 
-namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
+namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
     public class GitUtilities : IGitUtilities {
         public string CheckedOutBranch(IFolder folder) {
             while (folder.Exists()) {
@@ -20,9 +20,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
                     continue;
                 }
 
-                using (var repo = new Repository(folder.FullName, new RepositoryOptions())) {
-                    return repo.Head.FriendlyName;
-                }
+                using var repo = new Repository(folder.FullName, new RepositoryOptions());
+                return repo.Head.FriendlyName;
             }
 
             return "";
@@ -62,7 +61,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             if (!File.Exists(zipFileName)) { return false; }
 
             var fastZip = new FastZip();
-            fastZip.ExtractZip(zipFileName, folder.FullName, FastZip.Overwrite.Always, s => true, null, null, true);
+            fastZip.ExtractZip(zipFileName, folder.FullName, FastZip.Overwrite.Always, _ => true, null, null, true);
             return true;
         }
 
@@ -81,9 +80,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
         public string HeadTipIdSha(IFolder repositoryFolder) {
             if (!repositoryFolder.Exists()) { return ""; }
 
-            using (var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions())) {
-                return repo.Head.Tip.Id.Sha;
-            }
+            using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
+            return repo.Head.Tip.Id.Sha;
         }
 
         public void VerifyThatThereAreNoUncommittedChanges(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
@@ -96,9 +94,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
         public IList<string> FilesWithUncommittedChanges(IFolder repositoryFolder) {
             if (!repositoryFolder.Exists()) { return new List<string>(); }
 
-            using (var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions())) {
-                return repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree, DiffTargets.Index | DiffTargets.WorkingDirectory).Select(c => c.Path).ToList();
-            }
+            using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
+            return repo.Diff.Compare<TreeChanges>(repo.Head.Tip.Tree, DiffTargets.Index | DiffTargets.WorkingDirectory).Select(c => c.Path).ToList();
         }
 
         protected void DeleteOldDownloadFiles(string wildcard) {
@@ -111,68 +108,62 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
         }
 
         public void Reset(IFolder repositoryFolder, string headTipIdSha, IErrorsAndInfos errorsAndInfos) {
-            using (var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions())) {
-                var commit = repo.Head.Commits.FirstOrDefault(c => c.Sha == headTipIdSha);
-                if (commit == null) {
-                    errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CommitNotFound, headTipIdSha));
-                } else {
-                    repo.Reset(ResetMode.Hard, commit);
-                    repo.RemoveUntrackedFiles();
-                }
+            using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
+            var commit = repo.Head.Commits.FirstOrDefault(c => c.Sha == headTipIdSha);
+            if (commit == null) {
+                errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CommitNotFound, headTipIdSha));
+            } else {
+                repo.Reset(ResetMode.Hard, commit);
+                repo.RemoveUntrackedFiles();
             }
         }
 
         public bool IsBranchAheadOfMaster(IFolder repositoryFolder) {
-            using (var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions())) {
-                var head = repo.Head;
-                var masterBranch = repo.Branches["origin/master"];
-                var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(head.Tip, masterBranch.Tip);
-                return divergence.AheadBy > 0;
-
-            }
+            using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
+            var head = repo.Head;
+            var masterBranch = repo.Branches["origin/master"];
+            var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(head.Tip, masterBranch.Tip);
+            return divergence.AheadBy > 0;
         }
 
         public void IdentifyOwnerAndName(IFolder repositoryFolder, out string owner, out string name, IErrorsAndInfos errorsAndInfos) {
             owner = "";
             name = "";
 
-            using (var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions())) {
-                var remotes = repo.Network.Remotes.ToList();
-                if (remotes.Count != 1) {
-                    errorsAndInfos.Errors.Add(Properties.Resources.ExactlyOneRemoteExpected);
-                    return;
-                }
-
-                var url = remotes.First().Url;
-                var urlComponents = url.Split('/');
-                if ("github.com" != urlComponents[urlComponents.Length - 3]) {
-                    errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CannotInterpretRepositoryUrl, url));
-                    return;
-                }
-
-                owner = urlComponents[urlComponents.Length - 2];
-                name = urlComponents[urlComponents.Length - 1];
-                if (!name.EndsWith(".git")) {
-                    errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CannotInterpretRepositoryUrl, url));
-                    return;
-                }
-
-                name = name.Substring(0, name.Length - 4);
+            using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
+            var remotes = repo.Network.Remotes.ToList();
+            if (remotes.Count != 1) {
+                errorsAndInfos.Errors.Add(Properties.Resources.ExactlyOneRemoteExpected);
+                return;
             }
+
+            var url = remotes.First().Url;
+            var urlComponents = url.Split('/');
+            if ("github.com" != urlComponents[^3]) {
+                errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CannotInterpretRepositoryUrl, url));
+                return;
+            }
+
+            owner = urlComponents[^2];
+            name = urlComponents[^1];
+            if (!name.EndsWith(".git")) {
+                errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CannotInterpretRepositoryUrl, url));
+                return;
+            }
+
+            name = name.Substring(0, name.Length - 4);
         }
 
         public void Pull(IFolder repositoryFolder, string author, string eMail) {
-            using (var repo = new Repository(repositoryFolder.FullName)) {
-                var options = new PullOptions();
-                var signature = new Signature(new Identity(author, eMail), DateTimeOffset.Now);
-                Commands.Pull(repo, signature, options);
-            }
+            using var repo = new Repository(repositoryFolder.FullName);
+            var options = new PullOptions();
+            var signature = new Signature(new Identity(author, eMail), DateTimeOffset.Now);
+            Commands.Pull(repo, signature, options);
         }
 
         public IList<string> AllIdShas(IFolder repositoryFolder) {
-            using (var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions())) {
-                return repo.Head.Commits.Select(c => c.Sha).ToList();
-            }
+            using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
+            return repo.Head.Commits.Select(c => c.Sha).ToList();
         }
     }
 }

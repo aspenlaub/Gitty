@@ -123,17 +123,14 @@
   <data name="CommitNotFound" xml:space="preserve">
     <value>Commit '{0}' not found</value>
   </data>
-  <data name="CouldNotDownload" xml:space="preserve">
-    <value>Could not download "{0}"</value>
-  </data>
   <data name="CouldNotGetListOfPullRequests" xml:space="preserve">
     <value>Could not get list of pull requests</value>
   </data>
+  <data name="CouldNotInstallCakeTool" xml:space="preserve">
+    <value>Could not install cake tool</value>
+  </data>
   <data name="CouldNotLoadEmbeddedBuildCake" xml:space="preserve">
     <value>Could not load {0} script embedded in {1}</value>
-  </data>
-  <data name="CouldNotReadCakeVersion" xml:space="preserve">
-    <value>Could not read cake version from {0}</value>
   </data>
   <data name="ExactlyOneRemoteExpected" xml:space="preserve">
     <value>The checked out repository must have exactly one remote</value>
@@ -141,13 +138,10 @@
   <data name="FileNotFound" xml:space="preserve">
     <value>File "{0}" not found</value>
   </data>
-  <data name="FolderCouldNotBeCreated" xml:space="preserve">
-    <value>Folder "{0}" could not be created</value>
+  <data name="ResourceNotFound" xml:space="preserve">
+    <value>Resource not found</value>
   </data>
   <data name="UncommittedChangeTo" xml:space="preserve">
     <value>There is an uncommitted change to "{0}"</value>
-  </data>
-  <data name="WrongCakeVersion" xml:space="preserve">
-    <value>Wrong cake version {0} in {1}</value>
   </data>
 </root>

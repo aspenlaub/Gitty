@@ -19,7 +19,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -79,15 +79,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not download &quot;{0}&quot;.
-        /// </summary>
-        internal static string CouldNotDownload {
-            get {
-                return ResourceManager.GetString("CouldNotDownload", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Could not get list of pull requests.
         /// </summary>
         internal static string CouldNotGetListOfPullRequests {
@@ -97,20 +88,20 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Could not install cake tool.
+        /// </summary>
+        internal static string CouldNotInstallCakeTool {
+            get {
+                return ResourceManager.GetString("CouldNotInstallCakeTool", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Could not load {0} script embedded in {1}.
         /// </summary>
         internal static string CouldNotLoadEmbeddedBuildCake {
             get {
                 return ResourceManager.GetString("CouldNotLoadEmbeddedBuildCake", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not read cake version from {0}.
-        /// </summary>
-        internal static string CouldNotReadCakeVersion {
-            get {
-                return ResourceManager.GetString("CouldNotReadCakeVersion", resourceCulture);
             }
         }
         
@@ -133,11 +124,11 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Folder &quot;{0}&quot; could not be created.
+        ///   Looks up a localized string similar to Resource not found.
         /// </summary>
-        internal static string FolderCouldNotBeCreated {
+        internal static string ResourceNotFound {
             get {
-                return ResourceManager.GetString("FolderCouldNotBeCreated", resourceCulture);
+                return ResourceManager.GetString("ResourceNotFound", resourceCulture);
             }
         }
         
@@ -147,15 +138,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         internal static string UncommittedChangeTo {
             get {
                 return ResourceManager.GetString("UncommittedChangeTo", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Wrong cake version {0} in {1}.
-        /// </summary>
-        internal static string WrongCakeVersion {
-            get {
-                return ResourceManager.GetString("WrongCakeVersion", resourceCulture);
             }
         }
     }

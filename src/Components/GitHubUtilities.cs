@@ -9,7 +9,7 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
+namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
     public class GitHubUtilities : IGitHubUtilities {
         private readonly IGitUtilities vGitUtilities;
         private readonly ISecretRepository vSecretRepository;
@@ -82,22 +82,30 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             }
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             var response = (HttpWebResponse)request.GetResponse();
-            var responseStream = response.GetResponseStream();
-            if (responseStream == null) {
+            Stream responseStream;
+            try {
+                responseStream = response.GetResponseStream();
+            } catch {
                 errorsAndInfos.Errors.Add(Properties.Resources.CouldNotGetListOfPullRequests);
                 return null;
             }
 
             string text;
             using (var sr = new StreamReader(responseStream)) {
-                text = sr.ReadToEnd();
+                text = await sr.ReadToEndAsync();
             }
 
             return JsonConvert.DeserializeObject(text);
         }
 
         protected static PullRequest CreatePullRequest(JToken jToken) {
-            return new PullRequest { Id = jToken["id"].Value<string>(), Number = jToken["number"].Value<string>(), State = jToken["state"].Value<string>(), Branch = jToken["head"]["ref"].Value<string>(), Sha = jToken["head"]["sha"].Value<string>() };
+            return new() {
+                Id = jToken["id"].Value<string>(),
+                Number = jToken["number"].Value<string>(),
+                State = jToken["state"].Value<string>(),
+                Branch = (jToken["head"]["ref"] ?? "").Value<string>(),
+                Sha = (jToken["head"]["sha"] ?? "").Value<string>()
+            };
         }
 
         private async Task<PersonalAccessTokens> GetPersonalAccessTokensAsync(IErrorsAndInfos errorsAndInfos) {
@@ -106,4 +114,5 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             return personalAccessTokens;
         }
     }
+
 }

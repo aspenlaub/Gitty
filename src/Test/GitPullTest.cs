@@ -14,16 +14,14 @@ using IContainer = Autofac.IContainer;
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
     [TestClass]
     public class GitPullTest {
-        protected static TestTargetFolder ChabStandardTarget = new TestTargetFolder(nameof(GitPullTest), "ChabStandard");
-        protected static TestTargetInstaller TargetInstaller;
-        protected static TestTargetRunner TargetRunner;
+        protected static TestTargetFolder ChabStandardTarget = new(nameof(GitPullTest), "ChabStandard");
+        protected static ITestTargetRunner TargetRunner;
         private static IContainer vContainer;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context) {
             vContainer = new ContainerBuilder().UseGittyAndPegh(new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
-            TargetInstaller = vContainer.Resolve<TestTargetInstaller>();
-            TargetRunner = vContainer.Resolve<TestTargetRunner>();
+            TargetRunner = vContainer.Resolve<ITestTargetRunner>();
         }
 
         [TestInitialize]
@@ -39,11 +37,9 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         [TestMethod]
         public void CanPullLatestChanges() {
             var gitUtilities = vContainer.Resolve<IGitUtilities>();
-            var cakeRunner = vContainer.Resolve<ICakeRunner>();
             var errorsAndInfos = new ErrorsAndInfos();
             var url = "https://github.com/aspenlaub/" + ChabStandardTarget.SolutionId + ".git";
             gitUtilities.Clone(url, "master", ChabStandardTarget.Folder(), new CloneOptions { BranchName = "master" }, true, errorsAndInfos);
-            cakeRunner.VerifyCakeVersion(ChabStandardTarget.Folder().SubFolder("tools"), errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
 
             var addinsFolder = ChabStandardTarget.Folder().SubFolder("tools").SubFolder("Addins");

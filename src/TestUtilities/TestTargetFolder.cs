@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using System.Linq;
+using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities.Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
@@ -50,10 +50,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
             if (folder.Exists()) {
                 deleter.DeleteFolder(folder);
             }
-        }
-
-        public IFolder CakeFolder() {
-            return new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(TestClassId).SubFolder("Cake");
         }
     }
 }

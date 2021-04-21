@@ -4,6 +4,7 @@ using System.Reflection;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
+using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities.Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
@@ -18,24 +19,14 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
     public class GitUtilitiesTest {
         protected IFolder DevelopmentFolder, MasterFolder, NoGitFolder;
         protected static ITestTargetFolder DoNotPullFolder = new TestTargetFolder(nameof(GitUtilitiesTest) + @"DoNotPull", "PakledCore");
-        protected static TestTargetInstaller TargetInstaller;
-        protected static TestTargetRunner TargetRunner;
+        protected static ITestTargetRunner TargetRunner;
         private static IContainer vContainer;
         private IGitUtilities vSut;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context) {
             vContainer = new ContainerBuilder().UseGittyAndPegh(new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
-            TargetInstaller = vContainer.Resolve<TestTargetInstaller>();
-            TargetRunner = vContainer.Resolve<TestTargetRunner>();
-            TargetInstaller.DeleteCakeFolder(DoNotPullFolder);
-            TargetInstaller.CreateCakeFolder(DoNotPullFolder, out var errorsAndInfos);
-            Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-        }
-
-        [ClassCleanup]
-        public static void ClassCleanup() {
-            TargetInstaller.DeleteCakeFolder(DoNotPullFolder);
+            TargetRunner = vContainer.Resolve<ITestTargetRunner>();
         }
 
         [TestInitialize]
@@ -129,7 +120,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             CloneRepository(DoNotPullFolder.Folder(), "do-not-pull-from-me", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             Assert.IsFalse(vSut.IsBranchAheadOfMaster(MasterFolder));
-            vContainer.Resolve<CakeBuildUtilities>().CopyCakeScriptEmbeddedInAssembly(Assembly.GetExecutingAssembly(), BuildCake.Standard, DoNotPullFolder, errorsAndInfos);
+            vContainer.Resolve<IEmbeddedCakeScriptCopier>().CopyCakeScriptEmbeddedInAssembly(Assembly.GetExecutingAssembly(), BuildCake.Standard, DoNotPullFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
             TargetRunner.RunBuildCakeScript(BuildCake.Standard, DoNotPullFolder, "CleanRestorePull", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());

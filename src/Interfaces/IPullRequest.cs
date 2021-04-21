@@ -1,4 +1,6 @@
 ﻿// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedMemberInSuper.Global
+
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces {
     public interface IPullRequest {
         string Id { get; }

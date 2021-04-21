@@ -16,19 +16,23 @@
   <ItemGroup>
     <None Remove="build.cake" />
     <None Remove="failure.cake" />
+    <None Remove="net5.cake" />
     <None Remove="success.cake" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\..\build.cake" Link="build.cake" />
+    <EmbeddedResource Include="build.cake" />
     <EmbeddedResource Include="failure.cake" />
+    <EmbeddedResource Include="net5.cake" />
     <EmbeddedResource Include="success.cake" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />
     <PackageReference Include="MSTest.TestFramework" Version="2.2.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Pegh" Version="2.0.610.1049" />
+    <PackageReference Include="coverlet.collector" Version="3.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Gitty.csproj" />

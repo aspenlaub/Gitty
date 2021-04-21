@@ -7,7 +7,7 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Microsoft.Extensions.Logging;
 
-namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
+namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
     public class ProcessRunner : IProcessRunner {
         private readonly ISimpleLogger vSimpleLogger;
 
@@ -15,17 +15,17 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             vSimpleLogger = simpleLogger;
         }
 
-        public void RunProcess(string executableFullName, string arguments, string workingFolder, IErrorsAndInfos errorsAndInfos) {
+        public void RunProcess(string executableFileName, string arguments, IFolder workingFolder, IErrorsAndInfos errorsAndInfos) {
             var id = Guid.NewGuid().ToString();
             using (vSimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner), id))) {
-                vSimpleLogger.LogInformation($"Running {executableFullName} with arguments {arguments} in {workingFolder}");
-                using (var process = CreateProcess(executableFullName, arguments, workingFolder)) {
+                vSimpleLogger.LogInformation($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}");
+                using (var process = CreateProcess(executableFileName, arguments, workingFolder)) {
                     try {
                         var outputWaitHandle = new AutoResetEvent(false);
                         var errorWaitHandle = new AutoResetEvent(false);
-                        process.OutputDataReceived += (sender, e) => { OnDataReceived(e, outputWaitHandle, errorsAndInfos.Infos, LogLevel.Information); };
-                        process.ErrorDataReceived += (sender, e) => { OnDataReceived(e, errorWaitHandle, errorsAndInfos.Errors, LogLevel.Error); };
-                        process.Exited += (sender, e) => { vSimpleLogger.LogInformation("Process exited"); };
+                        process.OutputDataReceived += (_, e) => { OnDataReceived(e, outputWaitHandle, errorsAndInfos.Infos, LogLevel.Information); };
+                        process.ErrorDataReceived += (_, e) => { OnDataReceived(e, errorWaitHandle, errorsAndInfos.Errors, LogLevel.Error); };
+                        process.Exited += (_, _) => { vSimpleLogger.LogInformation("Process exited"); };
                         process.Start();
                         process.BeginOutputReadLine();
                         process.BeginErrorReadLine();
@@ -52,14 +52,14 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty {
             vSimpleLogger.Log(logLevel, e.Data);
         }
 
-        private static Process CreateProcess(string executableFullName, string arguments, string workingFolder) {
-            return new Process {
+        private static Process CreateProcess(string executableFileName, string arguments, IFolder workingFolder) {
+            return new() {
                 StartInfo = {
                     WindowStyle = ProcessWindowStyle.Hidden,
                     CreateNoWindow = true,
-                    FileName = executableFullName,
+                    FileName = executableFileName,
                     Arguments = arguments,
-                    WorkingDirectory = workingFolder,
+                    WorkingDirectory = workingFolder.FullName,
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true

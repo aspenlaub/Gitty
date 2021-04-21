@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using LibGit2Sharp;
 // ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedMemberInSuper.Global
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces {
     public interface IGitUtilities {
