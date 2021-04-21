@@ -2,7 +2,6 @@
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
-using Aspenlaub.Net.GitHub.CSharp.PeghCore;
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 
