@@ -14,7 +14,7 @@ using IContainer = Autofac.IContainer;
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
     [TestClass]
     public class GitPullTest {
-        protected static TestTargetFolder ChabStandardTarget = new(nameof(GitPullTest), "ChabStandard");
+        protected static TestTargetFolder ChabTarget = new(nameof(GitPullTest), "Chab");
         protected static ITestTargetRunner TargetRunner;
         private static IContainer vContainer;
 
@@ -26,23 +26,23 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestInitialize]
         public void Initialize() {
-            ChabStandardTarget.Delete();
+            ChabTarget.Delete();
         }
 
         [TestCleanup]
         public void TestCleanup() {
-            ChabStandardTarget.Delete();
+            ChabTarget.Delete();
         }
 
         [TestMethod]
         public void CanPullLatestChanges() {
             var gitUtilities = vContainer.Resolve<IGitUtilities>();
             var errorsAndInfos = new ErrorsAndInfos();
-            var url = "https://github.com/aspenlaub/" + ChabStandardTarget.SolutionId + ".git";
-            gitUtilities.Clone(url, "master", ChabStandardTarget.Folder(), new CloneOptions { BranchName = "master" }, true, errorsAndInfos);
+            var url = "https://github.com/aspenlaub/" + ChabTarget.SolutionId + ".git";
+            gitUtilities.Clone(url, "master", ChabTarget.Folder(), new CloneOptions { BranchName = "master" }, true, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
 
-            var addinsFolder = ChabStandardTarget.Folder().SubFolder("tools").SubFolder("Addins");
+            var addinsFolder = ChabTarget.Folder().SubFolder("tools").SubFolder("Addins");
             if (addinsFolder.Exists()) {
                 var deleter = new FolderDeleter();
                 deleter.DeleteFolder(addinsFolder);
@@ -50,13 +50,14 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
             // https://github.com/aspenlaub/ChabStandard/commit/b8c4dee904e5748fce9aba8f912c37cf13f87a7c came before
             // https://github.com/aspenlaub/ChabStandard/commit/c6eb57b5ad242222f3aa95d8a936bd08fcbab299 where package reference to Microsoft.NET.Test.Sdk was added
-            gitUtilities.Reset(ChabStandardTarget.Folder(), "b8c4dee904e5748fce9aba8f912c37cf13f87a7c", errorsAndInfos);
+            gitUtilities.Reset(ChabTarget.Folder(), "b8c4dee904e5748fce9aba8f912c37cf13f87a7c", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
 
-            var projectFile = ChabStandardTarget.Folder().SubFolder("src").SubFolder("Test").FullName + '\\' + ChabStandardTarget.SolutionId + @".Test.csproj";
+            var projectFile = ChabTarget.Folder().SubFolder("src").SubFolder("Test").FullName + '\\' + ChabTarget.SolutionId + @"Standard.Test.csproj";
             Assert.IsFalse(File.ReadAllText(projectFile).Contains("<PackageReference Include=\"Microsoft.NET.Test.Sdk\""));
-            gitUtilities.Pull(ChabStandardTarget.Folder(), "UserName", "user.name@aspenlaub.org");
+            gitUtilities.Pull(ChabTarget.Folder(), "UserName", "user.name@aspenlaub.org");
 
+            projectFile = projectFile.Replace("Standard", "");
             Assert.IsTrue(File.ReadAllText(projectFile).Contains("<PackageReference Include=\"Microsoft.NET.Test.Sdk\""));
         }
     }
