@@ -50,20 +50,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
 
             if (File.Exists(zipFileName)) { return; }
 
-            DeleteFolderLinks(folder);
+            folder.DeleteLinks();
 
             var fastZip = new FastZip();
             fastZip.CreateZip(zipFileName, folder.FullName, true, "");
-        }
-
-        private static void DeleteFolderLinks(IFolder folder) {
-            var directories = Directory.GetDirectories(folder.FullName, "_git*", SearchOption.TopDirectoryOnly)
-                .Select(d => new DirectoryInfo(d))
-                .Where(d => (d.Attributes & FileAttributes.ReparsePoint) == FileAttributes.ReparsePoint)
-                .ToList();
-            foreach (var directory in directories) {
-                directory.Delete();
-            }
         }
 
         protected bool CloneFromCache(string url, string branch, IFolder folder) {
@@ -120,6 +110,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
         }
 
         public void Reset(IFolder repositoryFolder, string headTipIdSha, IErrorsAndInfos errorsAndInfos) {
+            repositoryFolder.DeleteLinks();
+
             using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
             var commit = repo.Head.Commits.FirstOrDefault(c => c.Sha == headTipIdSha);
             if (commit == null) {
