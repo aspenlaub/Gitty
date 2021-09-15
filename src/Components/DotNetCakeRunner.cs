@@ -7,10 +7,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
     public class DotNetCakeRunner : IDotNetCakeRunner {
         private const string DotNetExecutableFileName = "dotnet";
 
-        private readonly IProcessRunner vProcessRunner;
+        private readonly IProcessRunner ProcessRunner;
 
         public DotNetCakeRunner(IProcessRunner processRunner) {
-            vProcessRunner = processRunner;
+            ProcessRunner = processRunner;
         }
 
         public void CallCake(string scriptFileFullName, IErrorsAndInfos errorsAndInfos) {
@@ -28,7 +28,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
             if (target != "") {
                 arguments = arguments + " --target \"" + target + "\"";
             }
-            vProcessRunner.RunProcess(DotNetExecutableFileName, arguments, scriptFileFolder, errorsAndInfos);
+            ProcessRunner.RunProcess(DotNetExecutableFileName, arguments, scriptFileFolder, errorsAndInfos);
         }
     }
 }

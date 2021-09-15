@@ -17,24 +17,24 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         protected static IDotNetCakeRunner Sut;
         protected static IFolder ScriptsFolder;
         protected const string ThisIsNotCake = @"This is not a cake!";
-        private static IContainer vContainer;
+        private static IContainer Container;
 
         [ClassInitialize]
         public static void Initialize(TestContext context) {
-            vContainer = new ContainerBuilder().UseGittyAndPegh(new DummyCsArgumentPrompter()).Build();
+            Container = new ContainerBuilder().UseGittyAndPegh(new DummyCsArgumentPrompter()).Build();
 
             ScriptsFolder = CakeScriptsFolder();
             DeleteFolder(ScriptsFolder);
             Directory.CreateDirectory(ScriptsFolder.FullName);
 
-            var cakeScriptReader = vContainer.Resolve<IEmbeddedCakeScriptReader>();
+            var cakeScriptReader = Container.Resolve<IEmbeddedCakeScriptReader>();
             var errorsAndInfos = new ErrorsAndInfos();
             foreach (var cakeId in new[] { "success", "failure", "net5" }) {
                 File.WriteAllText(ScriptsFolder.FullName + @"\" + cakeId + ".cake", cakeScriptReader.ReadCakeScriptFromAssembly(Assembly.GetExecutingAssembly(), cakeId + ".cake", errorsAndInfos));
                 Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
             }
 
-            Sut = vContainer.Resolve<IDotNetCakeRunner>();
+            Sut = Container.Resolve<IDotNetCakeRunner>();
         }
 
         [ClassCleanup]
@@ -77,7 +77,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Duration")));
             Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"00:00:00")));
             Assert.IsFalse(errorsAndInfos.Infos.Any(m => m.Contains(ThisIsNotCake)));
-            var logger = vContainer.Resolve<ISimpleLogger>();
+            var logger = Container.Resolve<ISimpleLogger>();
             Assert.IsNotNull(logger);
             var logEntries = logger.FindLogEntries(_ => true);
             Assert.IsTrue(errorsAndInfos.Errors.All(e => logEntries.Any(le => le.LogLevel == LogLevel.Error && le.Message.Contains(e))));

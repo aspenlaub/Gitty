@@ -7,21 +7,21 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
     public class TestTargetRunner : ITestTargetRunner {
-        private readonly IDotNetCakeRunner vCakeRunner;
-        private readonly IEmbeddedCakeScriptReader vEmbeddedCakeScriptReader;
+        private readonly IDotNetCakeRunner CakeRunner;
+        private readonly IEmbeddedCakeScriptReader EmbeddedCakeScriptReader;
 
         public TestTargetRunner(IDotNetCakeRunner cakeRunner, IEmbeddedCakeScriptReader embeddedCakeScriptReader) {
-            vCakeRunner = cakeRunner;
-            vEmbeddedCakeScriptReader = embeddedCakeScriptReader;
+            CakeRunner = cakeRunner;
+            EmbeddedCakeScriptReader = embeddedCakeScriptReader;
         }
 
         public void RunBuildCakeScript(string buildCakeName, ITestTargetFolder testTargetFolder, string target, IErrorsAndInfos errorsAndInfos) {
             var scriptFileFullName = testTargetFolder.FullName() + @"\" + buildCakeName;
-            vCakeRunner.CallCake(scriptFileFullName, target, errorsAndInfos);
+            CakeRunner.CallCake(scriptFileFullName, target, errorsAndInfos);
         }
 
         public void IgnoreOutdatedBuildCakePendingChangesAndDoNotPush(Assembly assembly, ITestTargetFolder targetFolder, IErrorsAndInfos errorsAndInfos) {
-            var cakeScript = vEmbeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, BuildCake.Standard, errorsAndInfos);
+            var cakeScript = EmbeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, BuildCake.Standard, errorsAndInfos);
             if (errorsAndInfos.AnyErrors()) { return; }
 
             var cakeScriptFileFullName = targetFolder.Folder().FullName + @"\" + BuildCake.Standard;

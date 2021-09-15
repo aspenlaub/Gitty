@@ -11,12 +11,12 @@ using Newtonsoft.Json.Linq;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
     public class GitHubUtilities : IGitHubUtilities {
-        private readonly IGitUtilities vGitUtilities;
-        private readonly ISecretRepository vSecretRepository;
+        private readonly IGitUtilities GitUtilities;
+        private readonly ISecretRepository SecretRepository;
 
         public GitHubUtilities(IGitUtilities gitUtilities, ISecretRepository secretRepository) {
-            vGitUtilities = gitUtilities;
-            vSecretRepository = secretRepository;
+            GitUtilities = gitUtilities;
+            SecretRepository = secretRepository;
         }
 
         public async Task<bool> HasOpenPullRequestAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
@@ -31,7 +31,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
 
         public async Task<bool> HasOpenPullRequestForThisBranchAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
             var pullRequests = await GetPullRequestsAsync(repositoryFolder, "open", errorsAndInfos);
-            var checkedOutBranch = vGitUtilities.CheckedOutBranch(repositoryFolder);
+            var checkedOutBranch = GitUtilities.CheckedOutBranch(repositoryFolder);
             return pullRequests.Any(p => p.Branch == checkedOutBranch);
         }
 
@@ -42,14 +42,14 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
 
         public async Task<bool> HasPullRequestForThisBranchAndItsHeadTipAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
             var pullRequests = await GetPullRequestsAsync(repositoryFolder, "all", errorsAndInfos);
-            var checkedOutBranch = vGitUtilities.CheckedOutBranch(repositoryFolder);
-            var headTipIdSha = vGitUtilities.HeadTipIdSha(repositoryFolder);
+            var checkedOutBranch = GitUtilities.CheckedOutBranch(repositoryFolder);
+            var headTipIdSha = GitUtilities.HeadTipIdSha(repositoryFolder);
             return pullRequests.Any(p => p.Branch == checkedOutBranch && p.Sha == headTipIdSha);
         }
 
         protected async Task<IList<IPullRequest>> GetPullRequestsAsync(IFolder repositoryFolder, string state, IErrorsAndInfos errorsAndInfos) {
             var pullRequests = new List<IPullRequest>();
-            vGitUtilities.IdentifyOwnerAndName(repositoryFolder, out var owner, out var name, errorsAndInfos);
+            GitUtilities.IdentifyOwnerAndName(repositoryFolder, out var owner, out var name, errorsAndInfos);
             if (errorsAndInfos.AnyErrors()) { return pullRequests; }
 
 
@@ -110,7 +110,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
 
         private async Task<PersonalAccessTokens> GetPersonalAccessTokensAsync(IErrorsAndInfos errorsAndInfos) {
             var personalAccessTokensSecret = new PersonalAccessTokensSecret();
-            var personalAccessTokens = await vSecretRepository.GetAsync(personalAccessTokensSecret, errorsAndInfos);
+            var personalAccessTokens = await SecretRepository.GetAsync(personalAccessTokensSecret, errorsAndInfos);
             return personalAccessTokens;
         }
     }

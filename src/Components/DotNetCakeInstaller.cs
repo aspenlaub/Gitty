@@ -13,17 +13,17 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
         private const string DotNetToolListArguments = "tool list --global";
         private const string DotNetInstallCakeToolArguments = "tool install Cake.Tool --version 1.1.0 --global";
 
-        private readonly IProcessRunner vProcessRunner;
-        private readonly IFolder vWorkingFolder;
+        private readonly IProcessRunner ProcessRunner;
+        private readonly IFolder WorkingFolder;
 
         public DotNetCakeInstaller(IProcessRunner processRunner) {
-            vProcessRunner = processRunner;
-            vWorkingFolder = new Folder(Path.GetTempPath()).SubFolder(nameof(DotNetCakeInstaller));
-            vWorkingFolder.CreateIfNecessary();
+            ProcessRunner = processRunner;
+            WorkingFolder = new Folder(Path.GetTempPath()).SubFolder(nameof(DotNetCakeInstaller));
+            WorkingFolder.CreateIfNecessary();
         }
 
         public bool IsGlobalDotNetCakeInstalled(IErrorsAndInfos errorsAndInfos) {
-            vProcessRunner.RunProcess(DotNetExecutableFileName, DotNetToolListArguments, vWorkingFolder, errorsAndInfos);
+            ProcessRunner.RunProcess(DotNetExecutableFileName, DotNetToolListArguments, WorkingFolder, errorsAndInfos);
             if (errorsAndInfos.AnyErrors()) { return false; }
 
             var line = errorsAndInfos.Infos.FirstOrDefault(l => l.StartsWith(CakeToolId));
@@ -34,7 +34,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
             if (IsGlobalDotNetCakeInstalled(errorsAndInfos)) { return; }
             if (errorsAndInfos.AnyErrors()) { return; }
 
-            vProcessRunner.RunProcess(DotNetExecutableFileName, DotNetInstallCakeToolArguments, vWorkingFolder, errorsAndInfos);
+            ProcessRunner.RunProcess(DotNetExecutableFileName, DotNetInstallCakeToolArguments, WorkingFolder, errorsAndInfos);
             if (errorsAndInfos.AnyErrors()) { return; }
 
             if (IsGlobalDotNetCakeInstalled(errorsAndInfos)) { return; }

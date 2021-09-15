@@ -16,35 +16,36 @@ using IContainer = Autofac.IContainer;
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
     [TestClass]
     public class GitHubUtilitiesTest {
-        protected IFolder MasterFolder, DevelopmentFolder;
-        private static IContainer vContainer;
-        private IGitUtilities vGitUtilities;
+        protected IFolder PakledMasterFolder, PakledDevelopmentFolder, DvinMasterFolder;
+        private static IContainer Container;
+        private IGitUtilities GitUtilities;
 
         [TestInitialize]
         public void Initialize() {
-            vContainer = new ContainerBuilder().UseGittyAndPegh(new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
-            vGitUtilities = vContainer.Resolve<IGitUtilities>();
+            Container = new ContainerBuilder().UseGittyAndPegh(new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
+            GitUtilities = Container.Resolve<IGitUtilities>();
             var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitHubUtilitiesTest));
-            MasterFolder = checkOutFolder.SubFolder("PakledCore-Master");
-            DevelopmentFolder = checkOutFolder.SubFolder("PakledCore-Development");
+            PakledMasterFolder = checkOutFolder.SubFolder("PakledCore-Master");
+            PakledDevelopmentFolder = checkOutFolder.SubFolder("PakledCore-Development");
+            DvinMasterFolder = checkOutFolder.SubFolder("Dvin-Master");
 
             CleanUp();
             var errorsAndInfos = new ErrorsAndInfos();
-            CloneRepository(MasterFolder, "master", errorsAndInfos);
+            CloneRepository("Pakled", PakledMasterFolder, "master", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-            CloneRepository(DevelopmentFolder, "do-not-pull-from-me", errorsAndInfos);
+            CloneRepository("Pakled", PakledDevelopmentFolder, "do-not-pull-from-me", errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         }
 
         [TestCleanup]
         public void CleanUp() {
             var deleter = new FolderDeleter();
-            foreach (var folder in new[] { MasterFolder, DevelopmentFolder }.Where(folder => folder.Exists())) {
+            foreach (var folder in new[] { PakledMasterFolder, PakledDevelopmentFolder, DvinMasterFolder }.Where(folder => folder.Exists())) {
                 deleter.DeleteFolder(folder);
             }
         }
 
-        private void CloneRepository(IFolder folder, string branch, IErrorsAndInfos errorsAndInfos) {
+        private void CloneRepository(string repositoryId, IFolder folder, string branch, IErrorsAndInfos errorsAndInfos) {
             if (folder.GitSubFolder().Exists()) {
                 return;
             }
@@ -55,13 +56,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
                 deleter.DeleteFolder(folder);
             }
 
-            const string url = "https://github.com/aspenlaub/PakledCore.git";
-            vGitUtilities.Clone(url, branch, new Folder(folder.FullName), new CloneOptions { BranchName = branch }, true, errorsAndInfos);
+            var url = $"https://github.com/aspenlaub/{repositoryId}.git";
+            GitUtilities.Clone(url, branch, new Folder(folder.FullName), new CloneOptions { BranchName = branch }, true, errorsAndInfos);
         }
 
         [TestMethod]
         public async Task CanCheckIfPullRequestsExist() {
-            var sut = vContainer.Resolve<IGitHubUtilities>();
+            var sut = Container.Resolve<IGitHubUtilities>();
             var errorsAndInfos = new ErrorsAndInfos();
             var hasOpenPullRequest = await HasOpenPullRequestAsync(sut, "", errorsAndInfos);
             if (hasOpenPullRequest.Inconclusive) { return; }
@@ -98,7 +99,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             var inconclusive = false;
             var hasOpenPullRequest = false;
             try {
-                hasOpenPullRequest = await sut.HasOpenPullRequestAsync(MasterFolder, semicolonSeparatedListOfPullRequestNumbersToIgnore, errorsAndInfos);
+                hasOpenPullRequest = await sut.HasOpenPullRequestAsync(PakledMasterFolder, semicolonSeparatedListOfPullRequestNumbersToIgnore, errorsAndInfos);
             } catch (WebException) {
                 inconclusive = true;
             }
@@ -110,7 +111,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             var inconclusive = false;
             var hasOpenPullRequest = false;
             try {
-                hasOpenPullRequest = await sut.HasOpenPullRequestForThisBranchAsync(master ? MasterFolder : DevelopmentFolder, errorsAndInfos);
+                hasOpenPullRequest = await sut.HasOpenPullRequestForThisBranchAsync(master ? PakledMasterFolder : PakledDevelopmentFolder, errorsAndInfos);
             } catch (WebException) {
                 inconclusive = true;
             }
@@ -122,7 +123,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
             var inconclusive = false;
             var hasOpenPullRequest = false;
             try {
-                hasOpenPullRequest = await sut.HasPullRequestForThisBranchAndItsHeadTipAsync(DevelopmentFolder, errorsAndInfos);
+                hasOpenPullRequest = await sut.HasPullRequestForThisBranchAndItsHeadTipAsync(PakledDevelopmentFolder, errorsAndInfos);
             } catch (WebException) {
                 inconclusive = true;
             }
@@ -132,14 +133,22 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
 
         [TestMethod]
         public async Task CanCheckHowManyPullRequestsExist() {
-            var sut = vContainer.Resolve<IGitHubUtilities>();
+            var sut = Container.Resolve<IGitHubUtilities>();
             var errorsAndInfos = new ErrorsAndInfos();
             try {
-                var numberOfPullRequests = await sut.GetNumberOfPullRequestsAsync(MasterFolder, errorsAndInfos);
+                var numberOfPullRequests = await sut.GetNumberOfPullRequestsAsync(PakledMasterFolder, errorsAndInfos);
                 Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
                 Assert.IsTrue(numberOfPullRequests > 0);
             } catch (WebException) {
             }
+        }
+
+        [TestMethod]
+        public void CanCloneDvin() {
+            CleanUp();
+            var errorsAndInfos = new ErrorsAndInfos();
+            CloneRepository("Dvin", DvinMasterFolder, "master", errorsAndInfos);
+            Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         }
     }
 }

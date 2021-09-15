@@ -9,23 +9,23 @@ using Microsoft.Extensions.Logging;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
     public class ProcessRunner : IProcessRunner {
-        private readonly ISimpleLogger vSimpleLogger;
+        private readonly ISimpleLogger SimpleLogger;
 
         public ProcessRunner(ISimpleLogger simpleLogger) {
-            vSimpleLogger = simpleLogger;
+            SimpleLogger = simpleLogger;
         }
 
         public void RunProcess(string executableFileName, string arguments, IFolder workingFolder, IErrorsAndInfos errorsAndInfos) {
             var id = Guid.NewGuid().ToString();
-            using (vSimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner), id))) {
-                vSimpleLogger.LogInformation($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}");
+            using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner), id))) {
+                SimpleLogger.LogInformation($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}");
                 using (var process = CreateProcess(executableFileName, arguments, workingFolder)) {
                     try {
                         var outputWaitHandle = new AutoResetEvent(false);
                         var errorWaitHandle = new AutoResetEvent(false);
                         process.OutputDataReceived += (_, e) => { OnDataReceived(e, outputWaitHandle, errorsAndInfos.Infos, LogLevel.Information); };
                         process.ErrorDataReceived += (_, e) => { OnDataReceived(e, errorWaitHandle, errorsAndInfos.Errors, LogLevel.Error); };
-                        process.Exited += (_, _) => { vSimpleLogger.LogInformation("Process exited"); };
+                        process.Exited += (_, _) => { SimpleLogger.LogInformation("Process exited"); };
                         process.Start();
                         process.BeginOutputReadLine();
                         process.BeginErrorReadLine();
@@ -38,7 +38,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
                     }
                 }
 
-                vSimpleLogger.LogInformation("Process completed");
+                SimpleLogger.LogInformation("Process completed");
             }
         }
 
@@ -49,7 +49,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
             }
 
             messages.Add(e.Data);
-            vSimpleLogger.Log(logLevel, e.Data);
+            SimpleLogger.Log(logLevel, e.Data);
         }
 
         private static Process CreateProcess(string executableFileName, string arguments, IFolder workingFolder) {
