@@ -19,14 +19,14 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
         [TestMethod]
         public void CanInstallGlobalDotNetCakeIfNecessary() {
             var errorsAndInfos = new ErrorsAndInfos();
-            Sut.InstallGlobalDotNetCakeIfNecessary(errorsAndInfos);
+            Sut.InstallOrUpdateGlobalDotNetCakeIfNecessary(errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
         }
 
         [TestMethod]
         public void GlobalDotNetCakeIsInstalled() {
             var errorsAndInfos = new ErrorsAndInfos();
-            var isInstalled = Sut.IsGlobalDotNetCakeInstalled(errorsAndInfos);
+            var isInstalled = Sut.IsCurrentGlobalDotNetCakeInstalled(errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
             Assert.IsTrue(isInstalled);
         }
