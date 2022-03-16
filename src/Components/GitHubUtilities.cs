@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
@@ -68,33 +69,31 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components {
         }
 
         protected async Task<object> RunJsonWebRequestAsync(string url, string owner, IErrorsAndInfos errorsAndInfos) {
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = WebRequestMethods.Http.Get;
-            request.UserAgent = GetType().Namespace;
             var personalAccessTokens = await GetPersonalAccessTokensAsync(errorsAndInfos);
             if (errorsAndInfos.AnyErrors()) {
                 return null;
             }
-
             var personalAccessToken = personalAccessTokens.FirstOrDefault(p => p.Owner == owner && p.Purpose == "API");
-            if (personalAccessToken != null) {
-                request.Headers.Add("Authorization", "token " + personalAccessToken.Token);
-            }
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            var response = (HttpWebResponse)request.GetResponse();
-            Stream responseStream;
-            try {
-                responseStream = response.GetResponseStream();
-            } catch {
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("User-Agent", GetType().Namespace);
+            if (personalAccessToken != null) {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personalAccessToken.Token);
+            }
+            var response = await client.GetAsync(url);
+            if (HttpStatusCode.OK != response.StatusCode) {
                 errorsAndInfos.Errors.Add(Properties.Resources.CouldNotGetListOfPullRequests);
                 return null;
             }
 
             string text;
-            using (var sr = new StreamReader(responseStream)) {
-                text = await sr.ReadToEndAsync();
+            try {
+                text = await response.Content.ReadAsStringAsync();
+            } catch {
+                errorsAndInfos.Errors.Add(Properties.Resources.CouldNotGetListOfPullRequests);
+                return null;
             }
-
             return JsonConvert.DeserializeObject(text);
         }
 
