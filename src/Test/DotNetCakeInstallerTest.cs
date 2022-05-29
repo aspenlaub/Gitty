@@ -5,30 +5,30 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Autofac;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test {
-    [TestClass]
-    public class DotNetCakeInstallerTest {
-        protected IDotNetCakeInstaller Sut;
+namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test;
 
-        [TestInitialize]
-        public void Initialize() {
-            var container = new ContainerBuilder().UseGittyAndPegh(new DummyCsArgumentPrompter()).Build();
-            Sut = container.Resolve<IDotNetCakeInstaller>();
-        }
+[TestClass]
+public class DotNetCakeInstallerTest {
+    protected IDotNetCakeInstaller Sut;
 
-        [TestMethod]
-        public void CanInstallGlobalDotNetCakeIfNecessary() {
-            var errorsAndInfos = new ErrorsAndInfos();
-            Sut.InstallOrUpdateGlobalDotNetCakeIfNecessary(errorsAndInfos);
-            Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
-        }
+    [TestInitialize]
+    public void Initialize() {
+        var container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).Build();
+        Sut = container.Resolve<IDotNetCakeInstaller>();
+    }
 
-        [TestMethod]
-        public void GlobalDotNetCakeIsInstalled() {
-            var errorsAndInfos = new ErrorsAndInfos();
-            var isInstalled = Sut.IsCurrentGlobalDotNetCakeInstalled(errorsAndInfos);
-            Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
-            Assert.IsTrue(isInstalled);
-        }
+    [TestMethod]
+    public void CanInstallGlobalDotNetCakeIfNecessary() {
+        var errorsAndInfos = new ErrorsAndInfos();
+        Sut.InstallOrUpdateGlobalDotNetCakeIfNecessary(errorsAndInfos);
+        Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
+    }
+
+    [TestMethod]
+    public void GlobalDotNetCakeIsInstalled() {
+        var errorsAndInfos = new ErrorsAndInfos();
+        var isInstalled = Sut.IsCurrentGlobalDotNetCakeInstalled(errorsAndInfos);
+        Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
+        Assert.IsTrue(isInstalled);
     }
 }

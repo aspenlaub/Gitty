@@ -5,31 +5,31 @@ using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities.Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 
-namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities {
-    public class EmbeddedCakeScriptCopier : IEmbeddedCakeScriptCopier {
-        private readonly IEmbeddedCakeScriptReader EmbeddedCakeScriptReader;
+namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 
-        public EmbeddedCakeScriptCopier(IEmbeddedCakeScriptReader embeddedCakeScriptReader) {
-            EmbeddedCakeScriptReader = embeddedCakeScriptReader;
+public class EmbeddedCakeScriptCopier : IEmbeddedCakeScriptCopier {
+    private readonly IEmbeddedCakeScriptReader EmbeddedCakeScriptReader;
+
+    public EmbeddedCakeScriptCopier(IEmbeddedCakeScriptReader embeddedCakeScriptReader) {
+        EmbeddedCakeScriptReader = embeddedCakeScriptReader;
+    }
+
+    public void CopyCakeScriptEmbeddedInAssembly(Assembly assembly, string buildCakeName, ITestTargetFolder testTargetFolder, IErrorsAndInfos errorsAndInfos) {
+        var embeddedCakeScript = EmbeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, buildCakeName, errorsAndInfos);
+        if (errorsAndInfos.AnyErrors()) {
+            return;
+        }
+        if (embeddedCakeScript.Length < 120 || !embeddedCakeScript.Contains("#load \"solution.cake\"")) {
+            errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CouldNotLoadEmbeddedBuildCake, buildCakeName, assembly.FullName));
+            return;
         }
 
-        public void CopyCakeScriptEmbeddedInAssembly(Assembly assembly, string buildCakeName, ITestTargetFolder testTargetFolder, IErrorsAndInfos errorsAndInfos) {
-            var embeddedCakeScript = EmbeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, buildCakeName, errorsAndInfos);
-            if (errorsAndInfos.AnyErrors()) {
-                return;
-            }
-            if (embeddedCakeScript.Length < 120 || !embeddedCakeScript.Contains("#load \"solution.cake\"")) {
-                errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CouldNotLoadEmbeddedBuildCake, buildCakeName, assembly.FullName));
-                return;
-            }
-
-            var currentScriptFileName = testTargetFolder.FullName() + @"\" + buildCakeName;
-            if (File.Exists(currentScriptFileName)) {
-                var currentScript = File.ReadAllText(currentScriptFileName);
-                if (Regex.Replace(embeddedCakeScript, @"\s", "") == Regex.Replace(currentScript, @"\s", "")) { return; }
-            }
-
-            File.WriteAllText(currentScriptFileName, embeddedCakeScript);
+        var currentScriptFileName = testTargetFolder.FullName() + @"\" + buildCakeName;
+        if (File.Exists(currentScriptFileName)) {
+            var currentScript = File.ReadAllText(currentScriptFileName);
+            if (Regex.Replace(embeddedCakeScript, @"\s", "") == Regex.Replace(currentScript, @"\s", "")) { return; }
         }
+
+        File.WriteAllText(currentScriptFileName, embeddedCakeScript);
     }
 }
