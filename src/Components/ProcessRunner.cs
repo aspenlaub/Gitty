@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
+using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -11,22 +12,25 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 
 public class ProcessRunner : IProcessRunner {
     private readonly ISimpleLogger SimpleLogger;
+    private readonly IMethodNamesFromStackFramesExtractor MethodNamesFromStackFramesExtractor;
 
-    public ProcessRunner(ISimpleLogger simpleLogger) {
+    public ProcessRunner(ISimpleLogger simpleLogger, IMethodNamesFromStackFramesExtractor methodNamesFromStackFramesExtractor) {
         SimpleLogger = simpleLogger;
+        MethodNamesFromStackFramesExtractor = methodNamesFromStackFramesExtractor;
     }
 
     public void RunProcess(string executableFileName, string arguments, IFolder workingFolder, IErrorsAndInfos errorsAndInfos) {
         var id = Guid.NewGuid().ToString();
         using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner), id))) {
-            SimpleLogger.LogInformation($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}");
+            var methodNamesFromStack = MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
+            SimpleLogger.LogInformationWithCallStack($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}", methodNamesFromStack);
             using (var process = CreateProcess(executableFileName, arguments, workingFolder)) {
                 try {
                     var outputWaitHandle = new AutoResetEvent(false);
                     var errorWaitHandle = new AutoResetEvent(false);
                     process.OutputDataReceived += (_, e) => { OnDataReceived(e, outputWaitHandle, errorsAndInfos.Infos, LogLevel.Information); };
                     process.ErrorDataReceived += (_, e) => { OnDataReceived(e, errorWaitHandle, errorsAndInfos.Errors, LogLevel.Error); };
-                    process.Exited += (_, _) => { SimpleLogger.LogInformation("Process exited"); };
+                    process.Exited += (_, _) => { SimpleLogger.LogInformationWithCallStack("Process exited", methodNamesFromStack); };
                     process.Start();
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
@@ -39,7 +43,7 @@ public class ProcessRunner : IProcessRunner {
                 }
             }
 
-            SimpleLogger.LogInformation("Process completed");
+            SimpleLogger.LogInformationWithCallStack("Process completed", methodNamesFromStack);
         }
     }
 
@@ -50,7 +54,21 @@ public class ProcessRunner : IProcessRunner {
         }
 
         messages.Add(e.Data);
-        SimpleLogger.Log(logLevel, e.Data);
+        var id = Guid.NewGuid().ToString();
+        using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(OnDataReceived), id))) {
+            var methodNamesFromStack = MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
+            switch (logLevel) {
+                case LogLevel.Warning:
+                    SimpleLogger.LogWarningWithCallStack(e.Data, methodNamesFromStack);
+                    break;
+                case LogLevel.Error:
+                    SimpleLogger.LogErrorWithCallStack(e.Data, methodNamesFromStack);
+                    break;
+                default:
+                    SimpleLogger.LogInformationWithCallStack(e.Data, methodNamesFromStack);
+                    break;
+            }
+        }
     }
 
     private static Process CreateProcess(string executableFileName, string arguments, IFolder workingFolder) {
