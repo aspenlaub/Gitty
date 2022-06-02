@@ -16,13 +16,13 @@ public class DotNetCakeInstaller : IDotNetCakeInstaller {
     private const string DotNetInstallCakeToolArguments = "tool install Cake.Tool --version 2.0.0 --global";
     private const string DotNetUpdateCakeToolArguments = "tool update Cake.Tool --version 2.0.0 --global";
 
-    private readonly IProcessRunner ProcessRunner;
-    private readonly IFolder WorkingFolder;
+    private readonly IProcessRunner _ProcessRunner;
+    private readonly IFolder _WorkingFolder;
 
     public DotNetCakeInstaller(IProcessRunner processRunner) {
-        ProcessRunner = processRunner;
-        WorkingFolder = new Folder(Path.GetTempPath()).SubFolder(nameof(DotNetCakeInstaller));
-        WorkingFolder.CreateIfNecessary();
+        _ProcessRunner = processRunner;
+        _WorkingFolder = new Folder(Path.GetTempPath()).SubFolder(nameof(DotNetCakeInstaller));
+        _WorkingFolder.CreateIfNecessary();
     }
 
     public bool IsCurrentGlobalDotNetCakeInstalled(IErrorsAndInfos errorsAndInfos) {
@@ -30,7 +30,7 @@ public class DotNetCakeInstaller : IDotNetCakeInstaller {
     }
 
     public bool IsGlobalDotNetCakeInstalled(string version, IErrorsAndInfos errorsAndInfos) {
-        ProcessRunner.RunProcess(DotNetExecutableFileName, DotNetToolListArguments, WorkingFolder, errorsAndInfos);
+        _ProcessRunner.RunProcess(DotNetExecutableFileName, DotNetToolListArguments, _WorkingFolder, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) { return false; }
 
         var line = errorsAndInfos.Infos.FirstOrDefault(l => l.StartsWith(CakeToolId));
@@ -44,7 +44,7 @@ public class DotNetCakeInstaller : IDotNetCakeInstaller {
         var oldPinnedCakeToolVersionInstalled = IsGlobalDotNetCakeInstalled(OldPinnedCakeToolVersion, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) { return; }
 
-        ProcessRunner.RunProcess(DotNetExecutableFileName, oldPinnedCakeToolVersionInstalled ? DotNetUpdateCakeToolArguments : DotNetInstallCakeToolArguments, WorkingFolder, errorsAndInfos);
+        _ProcessRunner.RunProcess(DotNetExecutableFileName, oldPinnedCakeToolVersionInstalled ? DotNetUpdateCakeToolArguments : DotNetInstallCakeToolArguments, _WorkingFolder, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) { return; }
 
         if (IsGlobalDotNetCakeInstalled(PinnedCakeToolVersion, errorsAndInfos)) { return; }

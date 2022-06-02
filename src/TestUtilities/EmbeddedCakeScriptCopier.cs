@@ -8,14 +8,14 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 
 public class EmbeddedCakeScriptCopier : IEmbeddedCakeScriptCopier {
-    private readonly IEmbeddedCakeScriptReader EmbeddedCakeScriptReader;
+    private readonly IEmbeddedCakeScriptReader _EmbeddedCakeScriptReader;
 
     public EmbeddedCakeScriptCopier(IEmbeddedCakeScriptReader embeddedCakeScriptReader) {
-        EmbeddedCakeScriptReader = embeddedCakeScriptReader;
+        _EmbeddedCakeScriptReader = embeddedCakeScriptReader;
     }
 
     public void CopyCakeScriptEmbeddedInAssembly(Assembly assembly, string buildCakeName, ITestTargetFolder testTargetFolder, IErrorsAndInfos errorsAndInfos) {
-        var embeddedCakeScript = EmbeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, buildCakeName, errorsAndInfos);
+        var embeddedCakeScript = _EmbeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, buildCakeName, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             return;
         }

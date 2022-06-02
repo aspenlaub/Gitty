@@ -22,7 +22,7 @@ public class GitUtilitiesTest {
     protected static ITestTargetFolder DoNotPullFolder = new TestTargetFolder(nameof(GitUtilitiesTest) + @"DoNotPull", "PakledCore");
     protected static ITestTargetRunner TargetRunner;
     private static IContainer Container;
-    private IGitUtilities Sut;
+    private IGitUtilities _Sut;
 
     [ClassInitialize]
     public static void ClassInitialize(TestContext context) {
@@ -32,7 +32,7 @@ public class GitUtilitiesTest {
 
     [TestInitialize]
     public void Initialize() {
-        Sut = Container.Resolve<IGitUtilities>();
+        _Sut = Container.Resolve<IGitUtilities>();
         var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitUtilitiesTest));
         DevelopmentFolder = checkOutFolder.SubFolder("PakledCore-Development");
         MasterFolder = checkOutFolder.SubFolder("PakledCore-Master");
@@ -72,21 +72,21 @@ public class GitUtilitiesTest {
         }
 
         const string url = "https://github.com/aspenlaub/PakledCore.git";
-        Sut.Clone(url, branch, new Folder(folder.FullName), new CloneOptions { BranchName = branch }, true, errorsAndInfos);
+        _Sut.Clone(url, branch, new Folder(folder.FullName), new CloneOptions { BranchName = branch }, true, errorsAndInfos);
     }
 
     [TestMethod]
     public void CanIdentifyCheckedOutBranch() {
-        Assert.AreEqual("development", Sut.CheckedOutBranch(DevelopmentFolder));
+        Assert.AreEqual("development", _Sut.CheckedOutBranch(DevelopmentFolder));
         var developmentSubFolder = DevelopmentFolder.SubFolder("src").SubFolder("Test");
-        Assert.AreEqual("development", Sut.CheckedOutBranch(developmentSubFolder));
-        Assert.AreEqual("master", Sut.CheckedOutBranch(MasterFolder));
-        Assert.AreEqual("", Sut.CheckedOutBranch(NoGitFolder));
+        Assert.AreEqual("development", _Sut.CheckedOutBranch(developmentSubFolder));
+        Assert.AreEqual("master", _Sut.CheckedOutBranch(MasterFolder));
+        Assert.AreEqual("", _Sut.CheckedOutBranch(NoGitFolder));
     }
 
     [TestMethod]
     public void CanGetHeadTipIdSha() {
-        var headTipIdSha = Sut.HeadTipIdSha(MasterFolder);
+        var headTipIdSha = _Sut.HeadTipIdSha(MasterFolder);
         Assert.IsFalse(string.IsNullOrEmpty(headTipIdSha));
         Assert.IsTrue(headTipIdSha.Length >= 40);
     }
@@ -94,24 +94,24 @@ public class GitUtilitiesTest {
     [TestMethod]
     public void CanDetermineUncommittedChanges() {
         var errorsAndInfos = new ErrorsAndInfos();
-        Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+        _Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         File.WriteAllText(MasterFolder.FullName + @"\change.cs", @"This is not a change");
-        Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+        _Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
         Assert.IsTrue(errorsAndInfos.Errors.Any(e => e.Contains(@"change.cs")));
     }
 
     [TestMethod]
     public void CanUndoUncommittedChanges() {
         var errorsAndInfos = new ErrorsAndInfos();
-        Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+        _Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         File.WriteAllText(MasterFolder.FullName + @"\change.cs", @"This is not a change");
-        Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+        _Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
         Assert.IsTrue(errorsAndInfos.Errors.Any(e => e.Contains(@"change.cs")));
         errorsAndInfos = new ErrorsAndInfos();
-        Sut.Reset(MasterFolder, Sut.HeadTipIdSha(MasterFolder), errorsAndInfos);
-        Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
+        _Sut.Reset(MasterFolder, _Sut.HeadTipIdSha(MasterFolder), errorsAndInfos);
+        _Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
     }
 
@@ -120,18 +120,18 @@ public class GitUtilitiesTest {
         var errorsAndInfos = new ErrorsAndInfos();
         CloneRepository(DoNotPullFolder.Folder(), "do-not-pull-from-me", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-        Assert.IsFalse(Sut.IsBranchAheadOfMaster(MasterFolder));
+        Assert.IsFalse(_Sut.IsBranchAheadOfMaster(MasterFolder));
         Container.Resolve<IEmbeddedCakeScriptCopier>().CopyCakeScriptEmbeddedInAssembly(Assembly.GetExecutingAssembly(), BuildCake.Standard, DoNotPullFolder, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         TargetRunner.RunBuildCakeScript(BuildCake.Standard, DoNotPullFolder, "CleanRestorePull", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-        Assert.IsTrue(Sut.IsBranchAheadOfMaster(DoNotPullFolder.Folder()));
+        Assert.IsTrue(_Sut.IsBranchAheadOfMaster(DoNotPullFolder.Folder()));
     }
 
     [TestMethod]
     public void CanIdentifyUrlOwnerAndName() {
         var errorsAndInfos = new ErrorsAndInfos();
-        Sut.IdentifyOwnerAndName(MasterFolder, out var owner, out var name, errorsAndInfos);
+        _Sut.IdentifyOwnerAndName(MasterFolder, out var owner, out var name, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.AreEqual("aspenlaub", owner);
         Assert.AreEqual("PakledCore", name);
@@ -139,9 +139,9 @@ public class GitUtilitiesTest {
 
     [TestMethod]
     public void CanGetAllIdShas() {
-        var allIdShas = Sut.AllIdShas(MasterFolder);
+        var allIdShas = _Sut.AllIdShas(MasterFolder);
         Assert.IsTrue(allIdShas.Count > 50);
-        Assert.IsTrue(allIdShas.Contains(Sut.HeadTipIdSha(MasterFolder)));
+        Assert.IsTrue(allIdShas.Contains(_Sut.HeadTipIdSha(MasterFolder)));
     }
 
 }

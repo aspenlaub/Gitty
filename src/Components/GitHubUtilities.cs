@@ -13,12 +13,12 @@ using Newtonsoft.Json.Linq;
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 
 public class GitHubUtilities : IGitHubUtilities {
-    private readonly IGitUtilities GitUtilities;
-    private readonly ISecretRepository SecretRepository;
+    private readonly IGitUtilities _GitUtilities;
+    private readonly ISecretRepository _SecretRepository;
 
     public GitHubUtilities(IGitUtilities gitUtilities, ISecretRepository secretRepository) {
-        GitUtilities = gitUtilities;
-        SecretRepository = secretRepository;
+        _GitUtilities = gitUtilities;
+        _SecretRepository = secretRepository;
     }
 
     public async Task<bool> HasOpenPullRequestAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
@@ -33,7 +33,7 @@ public class GitHubUtilities : IGitHubUtilities {
 
     public async Task<bool> HasOpenPullRequestForThisBranchAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
         var pullRequests = await GetPullRequestsAsync(repositoryFolder, "open", errorsAndInfos);
-        var checkedOutBranch = GitUtilities.CheckedOutBranch(repositoryFolder);
+        var checkedOutBranch = _GitUtilities.CheckedOutBranch(repositoryFolder);
         return pullRequests.Any(p => p.Branch == checkedOutBranch);
     }
 
@@ -44,14 +44,14 @@ public class GitHubUtilities : IGitHubUtilities {
 
     public async Task<bool> HasPullRequestForThisBranchAndItsHeadTipAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
         var pullRequests = await GetPullRequestsAsync(repositoryFolder, "all", errorsAndInfos);
-        var checkedOutBranch = GitUtilities.CheckedOutBranch(repositoryFolder);
-        var headTipIdSha = GitUtilities.HeadTipIdSha(repositoryFolder);
+        var checkedOutBranch = _GitUtilities.CheckedOutBranch(repositoryFolder);
+        var headTipIdSha = _GitUtilities.HeadTipIdSha(repositoryFolder);
         return pullRequests.Any(p => p.Branch == checkedOutBranch && p.Sha == headTipIdSha);
     }
 
     protected async Task<IList<IPullRequest>> GetPullRequestsAsync(IFolder repositoryFolder, string state, IErrorsAndInfos errorsAndInfos) {
         var pullRequests = new List<IPullRequest>();
-        GitUtilities.IdentifyOwnerAndName(repositoryFolder, out var owner, out var name, errorsAndInfos);
+        _GitUtilities.IdentifyOwnerAndName(repositoryFolder, out var owner, out var name, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) { return pullRequests; }
 
 
@@ -110,7 +110,7 @@ public class GitHubUtilities : IGitHubUtilities {
 
     private async Task<PersonalAccessTokens> GetPersonalAccessTokensAsync(IErrorsAndInfos errorsAndInfos) {
         var personalAccessTokensSecret = new PersonalAccessTokensSecret();
-        var personalAccessTokens = await SecretRepository.GetAsync(personalAccessTokensSecret, errorsAndInfos);
+        var personalAccessTokens = await _SecretRepository.GetAsync(personalAccessTokensSecret, errorsAndInfos);
         return personalAccessTokens;
     }
 }

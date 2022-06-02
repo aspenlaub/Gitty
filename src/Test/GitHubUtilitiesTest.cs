@@ -19,12 +19,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test;
 public class GitHubUtilitiesTest {
     protected IFolder PakledMasterFolder, PakledDevelopmentFolder, DvinMasterFolder;
     private static IContainer Container;
-    private IGitUtilities GitUtilities;
+    private IGitUtilities _GitUtilities;
 
     [TestInitialize]
     public void Initialize() {
         Container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
-        GitUtilities = Container.Resolve<IGitUtilities>();
+        _GitUtilities = Container.Resolve<IGitUtilities>();
         var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitHubUtilitiesTest));
         PakledMasterFolder = checkOutFolder.SubFolder("PakledCore-Master");
         PakledDevelopmentFolder = checkOutFolder.SubFolder("PakledCore-Development");
@@ -58,7 +58,7 @@ public class GitHubUtilitiesTest {
         }
 
         var url = $"https://github.com/aspenlaub/{repositoryId}.git";
-        GitUtilities.Clone(url, branch, new Folder(folder.FullName), new CloneOptions { BranchName = branch }, true, errorsAndInfos);
+        _GitUtilities.Clone(url, branch, new Folder(folder.FullName), new CloneOptions { BranchName = branch }, true, errorsAndInfos);
     }
 
     [TestMethod]

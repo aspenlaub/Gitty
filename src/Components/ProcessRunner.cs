@@ -11,26 +11,25 @@ using Microsoft.Extensions.Logging;
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 
 public class ProcessRunner : IProcessRunner {
-    private readonly ISimpleLogger SimpleLogger;
-    private readonly IMethodNamesFromStackFramesExtractor MethodNamesFromStackFramesExtractor;
+    private readonly ISimpleLogger _SimpleLogger;
+    private readonly IMethodNamesFromStackFramesExtractor _MethodNamesFromStackFramesExtractor;
 
     public ProcessRunner(ISimpleLogger simpleLogger, IMethodNamesFromStackFramesExtractor methodNamesFromStackFramesExtractor) {
-        SimpleLogger = simpleLogger;
-        MethodNamesFromStackFramesExtractor = methodNamesFromStackFramesExtractor;
+        _SimpleLogger = simpleLogger;
+        _MethodNamesFromStackFramesExtractor = methodNamesFromStackFramesExtractor;
     }
 
     public void RunProcess(string executableFileName, string arguments, IFolder workingFolder, IErrorsAndInfos errorsAndInfos) {
-        var id = Guid.NewGuid().ToString();
-        using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner), id))) {
-            var methodNamesFromStack = MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
-            SimpleLogger.LogInformationWithCallStack($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}", methodNamesFromStack);
+        using (_SimpleLogger.BeginScope(SimpleLoggingScopeId.CreateWithRandomId(nameof(ProcessRunner)))) {
+            var methodNamesFromStack = _MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
+            _SimpleLogger.LogInformationWithCallStack($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}", methodNamesFromStack);
             using (var process = CreateProcess(executableFileName, arguments, workingFolder)) {
                 try {
                     var outputWaitHandle = new AutoResetEvent(false);
                     var errorWaitHandle = new AutoResetEvent(false);
                     process.OutputDataReceived += (_, e) => { OnDataReceived(e, outputWaitHandle, errorsAndInfos.Infos, LogLevel.Information); };
                     process.ErrorDataReceived += (_, e) => { OnDataReceived(e, errorWaitHandle, errorsAndInfos.Errors, LogLevel.Error); };
-                    process.Exited += (_, _) => { SimpleLogger.LogInformationWithCallStack("Process exited", methodNamesFromStack); };
+                    process.Exited += (_, _) => { _SimpleLogger.LogInformationWithCallStack("Process exited", methodNamesFromStack); };
                     process.Start();
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
@@ -43,7 +42,7 @@ public class ProcessRunner : IProcessRunner {
                 }
             }
 
-            SimpleLogger.LogInformationWithCallStack("Process completed", methodNamesFromStack);
+            _SimpleLogger.LogInformationWithCallStack("Process completed", methodNamesFromStack);
         }
     }
 
@@ -54,18 +53,17 @@ public class ProcessRunner : IProcessRunner {
         }
 
         messages.Add(e.Data);
-        var id = Guid.NewGuid().ToString();
-        using (SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(OnDataReceived), id))) {
-            var methodNamesFromStack = MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
+        using (_SimpleLogger.BeginScope(SimpleLoggingScopeId.CreateWithRandomId(nameof(OnDataReceived)))) {
+            var methodNamesFromStack = _MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
             switch (logLevel) {
                 case LogLevel.Warning:
-                    SimpleLogger.LogWarningWithCallStack(e.Data, methodNamesFromStack);
+                    _SimpleLogger.LogWarningWithCallStack(e.Data, methodNamesFromStack);
                     break;
                 case LogLevel.Error:
-                    SimpleLogger.LogErrorWithCallStack(e.Data, methodNamesFromStack);
+                    _SimpleLogger.LogErrorWithCallStack(e.Data, methodNamesFromStack);
                     break;
                 default:
-                    SimpleLogger.LogInformationWithCallStack(e.Data, methodNamesFromStack);
+                    _SimpleLogger.LogInformationWithCallStack(e.Data, methodNamesFromStack);
                     break;
             }
         }

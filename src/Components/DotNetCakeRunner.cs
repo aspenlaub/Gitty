@@ -8,10 +8,10 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 public class DotNetCakeRunner : IDotNetCakeRunner {
     private const string DotNetExecutableFileName = "dotnet";
 
-    private readonly IProcessRunner ProcessRunner;
+    private readonly IProcessRunner _ProcessRunner;
 
     public DotNetCakeRunner(IProcessRunner processRunner) {
-        ProcessRunner = processRunner;
+        _ProcessRunner = processRunner;
     }
 
     public void CallCake(string scriptFileFullName, IErrorsAndInfos errorsAndInfos) {
@@ -29,6 +29,6 @@ public class DotNetCakeRunner : IDotNetCakeRunner {
         if (target != "") {
             arguments = arguments + " --target \"" + target + "\"";
         }
-        ProcessRunner.RunProcess(DotNetExecutableFileName, arguments, scriptFileFolder, errorsAndInfos);
+        _ProcessRunner.RunProcess(DotNetExecutableFileName, arguments, scriptFileFolder, errorsAndInfos);
     }
 }
