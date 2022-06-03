@@ -20,7 +20,7 @@ public class ProcessRunner : IProcessRunner {
     }
 
     public void RunProcess(string executableFileName, string arguments, IFolder workingFolder, IErrorsAndInfos errorsAndInfos) {
-        using (_SimpleLogger.BeginScope(SimpleLoggingScopeId.CreateWithRandomId(nameof(ProcessRunner)))) {
+        using (_SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner)))) {
             var methodNamesFromStack = _MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
             _SimpleLogger.LogInformationWithCallStack($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}", methodNamesFromStack);
             using (var process = CreateProcess(executableFileName, arguments, workingFolder)) {
@@ -53,7 +53,7 @@ public class ProcessRunner : IProcessRunner {
         }
 
         messages.Add(e.Data);
-        using (_SimpleLogger.BeginScope(SimpleLoggingScopeId.CreateWithRandomId(nameof(OnDataReceived)))) {
+        using (_SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(OnDataReceived)))) {
             var methodNamesFromStack = _MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
             switch (logLevel) {
                 case LogLevel.Warning:
