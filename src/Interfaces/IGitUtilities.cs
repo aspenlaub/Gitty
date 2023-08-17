@@ -68,6 +68,13 @@ public interface IGitUtilities {
     bool IsBranchAheadOfMaster(IFolder repositoryFolder);
 
     /// <summary>
+    /// Check if checked out branch is behind the master
+    /// </summary>
+    /// <param name="repositoryFolder"></param>
+    /// <returns></returns>
+    bool IsBranchBehindMaster(IFolder repositoryFolder);
+
+    /// <summary>
     /// Find out owner and name from checked out repository
     /// </summary>
     /// <param name="repositoryFolder"></param>

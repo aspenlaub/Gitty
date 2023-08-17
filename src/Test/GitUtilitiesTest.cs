@@ -19,7 +19,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test;
 [TestClass]
 public class GitUtilitiesTest {
     protected IFolder DevelopmentFolder, MasterFolder, NoGitFolder, BranchWithPackagesFolder;
-    protected static ITestTargetFolder DoNotPullFolder = new TestTargetFolder(nameof(GitUtilitiesTest) + @"DoNotPull", "PakledCore");
+    protected static ITestTargetFolder DoNotPullFolder = new TestTargetFolder(nameof(GitUtilitiesTest) + @"DoNotPull", "Pakled");
     protected static ITestTargetRunner TargetRunner;
     private static IContainer Container;
     private IGitUtilities _Sut;
@@ -34,8 +34,8 @@ public class GitUtilitiesTest {
     public void Initialize() {
         _Sut = Container.Resolve<IGitUtilities>();
         var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitUtilitiesTest));
-        DevelopmentFolder = checkOutFolder.SubFolder("PakledCore-Development");
-        MasterFolder = checkOutFolder.SubFolder("PakledCore-Master");
+        DevelopmentFolder = checkOutFolder.SubFolder("Pakled-Development");
+        MasterFolder = checkOutFolder.SubFolder("Pakled-Master");
         NoGitFolder = checkOutFolder.SubFolder("NoGit");
         BranchWithPackagesFolder = checkOutFolder.SubFolder("BranchWithPackages");
         DoNotPullFolder.Delete();
@@ -74,7 +74,7 @@ public class GitUtilitiesTest {
             deleter.DeleteFolder(folder);
         }
 
-        const string url = "https://github.com/aspenlaub/PakledCore.git";
+        const string url = "https://github.com/aspenlaub/Pakled.git";
         _Sut.Clone(url, branch, new Folder(folder.FullName), new CloneOptions { BranchName = branch }, true, errorsAndInfos);
     }
 
@@ -120,7 +120,7 @@ public class GitUtilitiesTest {
     }
 
     [TestMethod]
-    public void CanCheckIfIsBranchAheadOfMaster() {
+    public void CanCheckIfIsBranchAheadOfOrBehindMaster() {
         var errorsAndInfos = new ErrorsAndInfos();
         CloneRepository(DoNotPullFolder.Folder(), "do-not-pull-from-me", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
@@ -130,7 +130,8 @@ public class GitUtilitiesTest {
         TargetRunner.RunBuildCakeScript(BuildCake.Standard, DoNotPullFolder, "CleanRestorePull", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsTrue(_Sut.IsBranchAheadOfMaster(DoNotPullFolder.Folder()));
-        Assert.IsFalse(_Sut.IsBranchAheadOfMaster(BranchWithPackagesFolder));
+        Assert.IsTrue(_Sut.IsBranchAheadOfMaster(BranchWithPackagesFolder));
+        Assert.IsFalse(_Sut.IsBranchBehindMaster(BranchWithPackagesFolder), "Branch must be updated from master");
     }
 
     [TestMethod]
@@ -139,7 +140,7 @@ public class GitUtilitiesTest {
         _Sut.IdentifyOwnerAndName(MasterFolder, out var owner, out var name, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.AreEqual("aspenlaub", owner);
-        Assert.AreEqual("PakledCore", name);
+        Assert.AreEqual("Pakled", name);
     }
 
     [TestMethod]

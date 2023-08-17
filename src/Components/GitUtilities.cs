@@ -131,6 +131,14 @@ public class GitUtilities : IGitUtilities {
         return divergence.AheadBy > 0;
     }
 
+    public bool IsBranchBehindMaster(IFolder repositoryFolder) {
+        using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
+        var head = repo.Head;
+        var masterBranch = repo.Branches["origin/master"];
+        var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(head.Tip, masterBranch.Tip);
+        return divergence.BehindBy > 0;
+    }
+
     public void IdentifyOwnerAndName(IFolder repositoryFolder, out string owner, out string name, IErrorsAndInfos errorsAndInfos) {
         owner = "";
         name = "";
