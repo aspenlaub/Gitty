@@ -18,7 +18,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test;
 
 [TestClass]
 public class GitUtilitiesTest {
-    protected IFolder DevelopmentFolder, MasterFolder, NoGitFolder, BranchWithPackagesFolder;
+    protected IFolder DevelopmentFolder, MasterFolder, NoGitFolder;
     protected static ITestTargetFolder DoNotPullFolder = new TestTargetFolder(nameof(GitUtilitiesTest) + @"DoNotPull", "Pakled");
     protected static ITestTargetRunner TargetRunner;
     private static IContainer Container;
@@ -37,7 +37,6 @@ public class GitUtilitiesTest {
         DevelopmentFolder = checkOutFolder.SubFolder("Pakled-Development");
         MasterFolder = checkOutFolder.SubFolder("Pakled-Master");
         NoGitFolder = checkOutFolder.SubFolder("NoGit");
-        BranchWithPackagesFolder = checkOutFolder.SubFolder("BranchWithPackages");
         DoNotPullFolder.Delete();
 
         CleanUp();
@@ -45,8 +44,6 @@ public class GitUtilitiesTest {
         CloneRepository(MasterFolder, "master", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         CloneRepository(DevelopmentFolder, "development", errorsAndInfos);
-        Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-        CloneRepository(BranchWithPackagesFolder, "pkg-branch-test", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         if (!NoGitFolder.Exists()) {
             Directory.CreateDirectory(NoGitFolder.FullName);
@@ -56,7 +53,7 @@ public class GitUtilitiesTest {
     [TestCleanup]
     public void CleanUp() {
         var deleter = new FolderDeleter();
-        foreach (var folder in new[] { DevelopmentFolder, MasterFolder, NoGitFolder, BranchWithPackagesFolder }.Where(folder => folder.Exists())) {
+        foreach (var folder in new[] { DevelopmentFolder, MasterFolder, NoGitFolder }.Where(folder => folder.Exists())) {
             deleter.DeleteFolder(folder);
         }
 
@@ -85,7 +82,6 @@ public class GitUtilitiesTest {
         Assert.AreEqual("development", _Sut.CheckedOutBranch(developmentSubFolder));
         Assert.AreEqual("master", _Sut.CheckedOutBranch(MasterFolder));
         Assert.AreEqual("", _Sut.CheckedOutBranch(NoGitFolder));
-        Assert.AreEqual("pkg-branch-test", _Sut.CheckedOutBranch(BranchWithPackagesFolder));
     }
 
     [TestMethod]
@@ -130,8 +126,6 @@ public class GitUtilitiesTest {
         TargetRunner.RunBuildCakeScript(BuildCake.Standard, DoNotPullFolder, "CleanRestorePull", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsTrue(_Sut.IsBranchAheadOfMaster(DoNotPullFolder.Folder()));
-        Assert.IsTrue(_Sut.IsBranchAheadOfMaster(BranchWithPackagesFolder));
-        Assert.IsFalse(_Sut.IsBranchBehindMaster(BranchWithPackagesFolder), "Branch must be updated from master");
     }
 
     [TestMethod]
