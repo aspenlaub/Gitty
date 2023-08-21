@@ -9,12 +9,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 
 public class DotNetCakeInstaller : IDotNetCakeInstaller {
     private const string CakeToolId = "cake.tool";
-    private const string OldPinnedCakeToolVersion = "1.1.0";
-    private const string PinnedCakeToolVersion = "2.0.0";
+    private const string VeryOldPinnedCakeToolVersion = "1.1.0";
+    private const string OldPinnedCakeToolVersion = "2.0.0";
+    private const string PinnedCakeToolVersion = "3.1.0";
     private const string DotNetExecutableFileName = "dotnet";
     private const string DotNetToolListArguments = "tool list --global";
-    private const string DotNetInstallCakeToolArguments = "tool install Cake.Tool --version 2.0.0 --global";
-    private const string DotNetUpdateCakeToolArguments = "tool update Cake.Tool --version 2.0.0 --global";
+    private const string DotNetInstallCakeToolArguments = "tool install Cake.Tool --version 3.1.0 --global";
+    private const string DotNetUpdateCakeToolArguments = "tool update Cake.Tool --version 3.1.0 --global";
 
     private readonly IProcessRunner _ProcessRunner;
     private readonly IFolder _WorkingFolder;
@@ -41,7 +42,9 @@ public class DotNetCakeInstaller : IDotNetCakeInstaller {
         if (IsGlobalDotNetCakeInstalled(PinnedCakeToolVersion, errorsAndInfos)) { return; }
         if (errorsAndInfos.AnyErrors()) { return; }
 
-        var oldPinnedCakeToolVersionInstalled = IsGlobalDotNetCakeInstalled(OldPinnedCakeToolVersion, errorsAndInfos);
+        var oldPinnedCakeToolVersionInstalled =
+            IsGlobalDotNetCakeInstalled(VeryOldPinnedCakeToolVersion, errorsAndInfos)
+            || IsGlobalDotNetCakeInstalled(OldPinnedCakeToolVersion, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) { return; }
 
         _ProcessRunner.RunProcess(DotNetExecutableFileName, oldPinnedCakeToolVersionInstalled ? DotNetUpdateCakeToolArguments : DotNetInstallCakeToolArguments, _WorkingFolder, errorsAndInfos);
