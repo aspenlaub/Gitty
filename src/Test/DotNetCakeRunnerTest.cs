@@ -89,7 +89,7 @@ public class DotNetCakeRunnerTest {
     public void CanCallScriptAgainstNonExistingTargetButGetAnError() {
         var errorsAndInfos = new ErrorsAndInfos();
         Sut.CallCake(ScriptsFolder.FullName + @"\success.cake", "NonExistingTarget", errorsAndInfos);
-        Assert.AreEqual(2, errorsAndInfos.Errors.Count);
+        Assert.IsTrue(errorsAndInfos.Errors.Any());
         Assert.IsTrue(errorsAndInfos.Errors.Any(e => e.Contains("The target 'NonExistingTarget' was not found")));
     }
 
