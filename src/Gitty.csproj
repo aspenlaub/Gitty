@@ -36,8 +36,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp" Version="0.27.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Pegh" Version="2.0.1427.1106" />
+    <PackageReference Include="System.Text.Json" Version="7.0.3" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">

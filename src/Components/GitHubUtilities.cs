@@ -3,12 +3,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 
@@ -56,7 +55,7 @@ public class GitHubUtilities : IGitHubUtilities {
 
 
         var url = $"https://api.github.com/repos/{owner}/{name}/pulls?state=" + state;
-        var result = await RunJsonWebRequestAsync(url, owner, errorsAndInfos) as JArray;
+        var result = await RunJsonWebRequestAsync(url, owner, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) { return pullRequests; }
 
         if (result == null) {
@@ -64,12 +63,12 @@ public class GitHubUtilities : IGitHubUtilities {
             return pullRequests;
         }
 
-        pullRequests.AddRange(result.Select(detailResult => CreatePullRequest(detailResult)));
+        pullRequests.AddRange(((JsonElement)result).EnumerateArray().Select(CreatePullRequest));
 
         return pullRequests;
     }
 
-    protected async Task<object> RunJsonWebRequestAsync(string url, string owner, IErrorsAndInfos errorsAndInfos) {
+    protected async Task<JsonElement?> RunJsonWebRequestAsync(string url, string owner, IErrorsAndInfos errorsAndInfos) {
         var personalAccessTokens = await GetPersonalAccessTokensAsync(errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             return null;
@@ -95,16 +94,16 @@ public class GitHubUtilities : IGitHubUtilities {
             errorsAndInfos.Errors.Add(Properties.Resources.CouldNotGetListOfPullRequests);
             return null;
         }
-        return JsonConvert.DeserializeObject(text);
+        return JsonSerializer.Deserialize<dynamic>(text);
     }
 
-    protected static PullRequest CreatePullRequest(JToken jToken) {
+    protected static PullRequest CreatePullRequest(JsonElement jsonElement) {
         return new() {
-            Id = jToken["id"].Value<string>(),
-            Number = jToken["number"].Value<string>(),
-            State = jToken["state"].Value<string>(),
-            Branch = (jToken["head"]["ref"] ?? "").Value<string>(),
-            Sha = (jToken["head"]["sha"] ?? "").Value<string>()
+            Id = jsonElement.GetProperty("id").ToString(),
+            Number = jsonElement.GetProperty("number").ToString(),
+            State = jsonElement.GetProperty("state").ToString(),
+            Branch = jsonElement.GetProperty("head").GetProperty("ref").ToString(),
+            Sha = jsonElement.GetProperty("head").GetProperty("sha").ToString()
         };
     }
 
