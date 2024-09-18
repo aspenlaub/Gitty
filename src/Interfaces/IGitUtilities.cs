@@ -61,14 +61,14 @@ public interface IGitUtilities {
     void VerifyThatThereAreNoUncommittedChanges(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos);
 
     /// <summary>
-    /// Check if checked out branch is ahead of the master
+    /// Check if checked out branch is ahead of the master/main branch
     /// </summary>
     /// <param name="repositoryFolder"></param>
     /// <returns></returns>
     bool IsBranchAheadOfMaster(IFolder repositoryFolder);
 
     /// <summary>
-    /// Check if checked out branch is behind the master
+    /// Check if checked out branch is behind the master/main branch
     /// </summary>
     /// <param name="repositoryFolder"></param>
     /// <returns></returns>

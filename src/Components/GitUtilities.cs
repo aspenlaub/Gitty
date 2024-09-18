@@ -69,7 +69,8 @@ public class GitUtilities : IGitUtilities {
     }
 
     private string CloneZipFileName(string url, string branch) {
-        return DownloadFolder() + '\\' + url.Replace(':', '-').Replace('/', '-').Replace('.', '-') + (branch == "master" ? "" : '-' + branch) + ".zip";
+        var isMainOrMaster = MasterMaind.IsMainOrMaster(branch);
+        return DownloadFolder() + '\\' + url.Replace(':', '-').Replace('/', '-').Replace('.', '-') + (isMainOrMaster ? "" : '-' + branch) + ".zip";
     }
 
     public string DownloadFolder() {
@@ -126,16 +127,16 @@ public class GitUtilities : IGitUtilities {
     public bool IsBranchAheadOfMaster(IFolder repositoryFolder) {
         using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
         var head = repo.Head;
-        var masterBranch = repo.Branches["origin/master"];
-        var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(head.Tip, masterBranch.Tip);
+        var mainOrMasterBranch = MasterMaind.RemoteMainOrMasterBranch(repo.Branches);
+        var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(head.Tip, mainOrMasterBranch.Tip);
         return divergence.AheadBy > 0;
     }
 
     public bool IsBranchBehindMaster(IFolder repositoryFolder) {
         using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
         var head = repo.Head;
-        var masterBranch = repo.Branches["origin/master"];
-        var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(head.Tip, masterBranch.Tip);
+        var mainOrMasterBranch = MasterMaind.RemoteMainOrMasterBranch(repo.Branches);
+        var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(head.Tip, mainOrMasterBranch.Tip);
         return divergence.BehindBy > 0;
     }
 
