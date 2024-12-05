@@ -10,26 +10,19 @@ using Microsoft.Extensions.Logging;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 
-public class ProcessRunner : IProcessRunner {
-    private readonly ISimpleLogger _SimpleLogger;
-    private readonly IMethodNamesFromStackFramesExtractor _MethodNamesFromStackFramesExtractor;
-
-    public ProcessRunner(ISimpleLogger simpleLogger, IMethodNamesFromStackFramesExtractor methodNamesFromStackFramesExtractor) {
-        _SimpleLogger = simpleLogger;
-        _MethodNamesFromStackFramesExtractor = methodNamesFromStackFramesExtractor;
-    }
-
+public class ProcessRunner(ISimpleLogger simpleLogger, IMethodNamesFromStackFramesExtractor methodNamesFromStackFramesExtractor)
+    : IProcessRunner {
     public void RunProcess(string executableFileName, string arguments, IFolder workingFolder, IErrorsAndInfos errorsAndInfos) {
-        using (_SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner)))) {
-            var methodNamesFromStack = _MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
-            _SimpleLogger.LogInformationWithCallStack($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}", methodNamesFromStack);
+        using (simpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner)))) {
+            var methodNamesFromStack = methodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
+            simpleLogger.LogInformationWithCallStack($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}", methodNamesFromStack);
             using (var process = CreateProcess(executableFileName, arguments, workingFolder)) {
                 try {
                     var outputWaitHandle = new AutoResetEvent(false);
                     var errorWaitHandle = new AutoResetEvent(false);
                     process.OutputDataReceived += (_, e) => { OnDataReceived(e, outputWaitHandle, errorsAndInfos.Infos, LogLevel.Information); };
                     process.ErrorDataReceived += (_, e) => { OnDataReceived(e, errorWaitHandle, errorsAndInfos.Errors, LogLevel.Error); };
-                    process.Exited += (_, _) => { _SimpleLogger.LogInformationWithCallStack("Process exited", methodNamesFromStack); };
+                    process.Exited += (_, _) => { simpleLogger.LogInformationWithCallStack("Process exited", methodNamesFromStack); };
                     process.Start();
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
@@ -42,7 +35,7 @@ public class ProcessRunner : IProcessRunner {
                 }
             }
 
-            _SimpleLogger.LogInformationWithCallStack("Process completed", methodNamesFromStack);
+            simpleLogger.LogInformationWithCallStack("Process completed", methodNamesFromStack);
         }
     }
 
@@ -53,17 +46,17 @@ public class ProcessRunner : IProcessRunner {
         }
 
         messages.Add(e.Data);
-        using (_SimpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(OnDataReceived)))) {
-            var methodNamesFromStack = _MethodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
+        using (simpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(OnDataReceived)))) {
+            var methodNamesFromStack = methodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
             switch (logLevel) {
                 case LogLevel.Warning:
-                    _SimpleLogger.LogWarningWithCallStack(e.Data, methodNamesFromStack);
+                    simpleLogger.LogWarningWithCallStack(e.Data, methodNamesFromStack);
                     break;
                 case LogLevel.Error:
-                    _SimpleLogger.LogErrorWithCallStack(e.Data, methodNamesFromStack);
+                    simpleLogger.LogErrorWithCallStack(e.Data, methodNamesFromStack);
                     break;
                 default:
-                    _SimpleLogger.LogInformationWithCallStack(e.Data, methodNamesFromStack);
+                    simpleLogger.LogInformationWithCallStack(e.Data, methodNamesFromStack);
                     break;
             }
         }

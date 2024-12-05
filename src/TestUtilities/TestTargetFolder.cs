@@ -7,14 +7,9 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 
-public class TestTargetFolder : ITestTargetFolder {
-    public string TestClassId { get; }
-    public string SolutionId { get; }
-
-    public TestTargetFolder(string testClassId, string solutionId) {
-        TestClassId = testClassId;
-        SolutionId = solutionId;
-    }
+public class TestTargetFolder(string testClassId, string solutionId) : ITestTargetFolder {
+    public string TestClassId { get; } = testClassId;
+    public string SolutionId { get; } = solutionId;
 
     public IFolder Folder() {
         return new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(TestClassId).SubFolder(SolutionId);

@@ -11,15 +11,7 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 
-public class GitHubUtilities : IGitHubUtilities {
-    private readonly IGitUtilities _GitUtilities;
-    private readonly ISecretRepository _SecretRepository;
-
-    public GitHubUtilities(IGitUtilities gitUtilities, ISecretRepository secretRepository) {
-        _GitUtilities = gitUtilities;
-        _SecretRepository = secretRepository;
-    }
-
+public class GitHubUtilities(IGitUtilities gitUtilities, ISecretRepository secretRepository) : IGitHubUtilities {
     public async Task<bool> HasOpenPullRequestAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
         var pullRequests = await GetPullRequestsAsync(repositoryFolder, "open", errorsAndInfos);
         return pullRequests.Any();
@@ -32,7 +24,7 @@ public class GitHubUtilities : IGitHubUtilities {
 
     public async Task<bool> HasOpenPullRequestForThisBranchAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
         var pullRequests = await GetPullRequestsAsync(repositoryFolder, "open", errorsAndInfos);
-        var checkedOutBranch = _GitUtilities.CheckedOutBranch(repositoryFolder);
+        var checkedOutBranch = gitUtilities.CheckedOutBranch(repositoryFolder);
         return pullRequests.Any(p => p.Branch == checkedOutBranch);
     }
 
@@ -43,14 +35,14 @@ public class GitHubUtilities : IGitHubUtilities {
 
     public async Task<bool> HasPullRequestForThisBranchAndItsHeadTipAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
         var pullRequests = await GetPullRequestsAsync(repositoryFolder, "all", errorsAndInfos);
-        var checkedOutBranch = _GitUtilities.CheckedOutBranch(repositoryFolder);
-        var headTipIdSha = _GitUtilities.HeadTipIdSha(repositoryFolder);
+        var checkedOutBranch = gitUtilities.CheckedOutBranch(repositoryFolder);
+        var headTipIdSha = gitUtilities.HeadTipIdSha(repositoryFolder);
         return pullRequests.Any(p => p.Branch == checkedOutBranch && p.Sha == headTipIdSha);
     }
 
     protected async Task<IList<IPullRequest>> GetPullRequestsAsync(IFolder repositoryFolder, string state, IErrorsAndInfos errorsAndInfos) {
         var pullRequests = new List<IPullRequest>();
-        _GitUtilities.IdentifyOwnerAndName(repositoryFolder, out var owner, out var name, errorsAndInfos);
+        gitUtilities.IdentifyOwnerAndName(repositoryFolder, out var owner, out var name, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) { return pullRequests; }
 
 
@@ -74,7 +66,6 @@ public class GitHubUtilities : IGitHubUtilities {
             return null;
         }
         var personalAccessToken = personalAccessTokens.FirstOrDefault(p => p.Owner == owner && p.Purpose == "API");
-        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
         using var client = new HttpClient();
         client.DefaultRequestHeaders.Add("User-Agent", GetType().Namespace);
@@ -109,7 +100,7 @@ public class GitHubUtilities : IGitHubUtilities {
 
     private async Task<PersonalAccessTokens> GetPersonalAccessTokensAsync(IErrorsAndInfos errorsAndInfos) {
         var personalAccessTokensSecret = new PersonalAccessTokensSecret();
-        var personalAccessTokens = await _SecretRepository.GetAsync(personalAccessTokensSecret, errorsAndInfos);
+        var personalAccessTokens = await secretRepository.GetAsync(personalAccessTokensSecret, errorsAndInfos);
         return personalAccessTokens;
     }
 }

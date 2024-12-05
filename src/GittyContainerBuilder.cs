@@ -10,7 +10,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty;
 public static class GittyContainerBuilder {
     public static ContainerBuilder UseGittyAndPegh(this ContainerBuilder builder, string applicationName, ICsArgumentPrompter csArgumentPrompter) {
         builder.UsePegh(applicationName, csArgumentPrompter);
-        builder.RegisterType<DotNetCakeInstaller>().As<IDotNetCakeInstaller>();
         builder.RegisterType<ProcessRunner>().As<IProcessRunner>();
         builder.RegisterType<EmbeddedCakeScriptReader>().As<IEmbeddedCakeScriptReader>();
         builder.RegisterType<DotNetCakeRunner>().As<IDotNetCakeRunner>();
@@ -23,7 +22,6 @@ public static class GittyContainerBuilder {
     // ReSharper disable once UnusedMember.Global
     public static IServiceCollection UseGittyAndPegh(this IServiceCollection services, string applicationName, ICsArgumentPrompter csArgumentPrompter) {
         services.UsePegh(applicationName, csArgumentPrompter);
-        services.AddTransient<IDotNetCakeInstaller, DotNetCakeInstaller>();
         services.AddTransient<IProcessRunner, ProcessRunner>();
         services.AddTransient<IEmbeddedCakeScriptReader, EmbeddedCakeScriptReader>();
         services.AddTransient<IDotNetCakeRunner, DotNetCakeRunner>();

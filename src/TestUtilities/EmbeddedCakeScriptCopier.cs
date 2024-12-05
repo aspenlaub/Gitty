@@ -7,15 +7,9 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 
-public class EmbeddedCakeScriptCopier : IEmbeddedCakeScriptCopier {
-    private readonly IEmbeddedCakeScriptReader _EmbeddedCakeScriptReader;
-
-    public EmbeddedCakeScriptCopier(IEmbeddedCakeScriptReader embeddedCakeScriptReader) {
-        _EmbeddedCakeScriptReader = embeddedCakeScriptReader;
-    }
-
+public class EmbeddedCakeScriptCopier(IEmbeddedCakeScriptReader embeddedCakeScriptReader) : IEmbeddedCakeScriptCopier {
     public void CopyCakeScriptEmbeddedInAssembly(Assembly assembly, string buildCakeName, ITestTargetFolder testTargetFolder, IErrorsAndInfos errorsAndInfos) {
-        var embeddedCakeScript = _EmbeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, buildCakeName, errorsAndInfos);
+        var embeddedCakeScript = embeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, buildCakeName, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             return;
         }

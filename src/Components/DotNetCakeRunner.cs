@@ -5,14 +5,8 @@ using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 
-public class DotNetCakeRunner : IDotNetCakeRunner {
+public class DotNetCakeRunner(IProcessRunner processRunner) : IDotNetCakeRunner {
     private const string DotNetExecutableFileName = "dotnet";
-
-    private readonly IProcessRunner _ProcessRunner;
-
-    public DotNetCakeRunner(IProcessRunner processRunner) {
-        _ProcessRunner = processRunner;
-    }
 
     public void CallCake(string scriptFileFullName, IErrorsAndInfos errorsAndInfos) {
         CallCake(scriptFileFullName, "", errorsAndInfos);
@@ -29,6 +23,6 @@ public class DotNetCakeRunner : IDotNetCakeRunner {
         if (target != "") {
             arguments = arguments + " --target \"" + target + "\"";
         }
-        _ProcessRunner.RunProcess(DotNetExecutableFileName, arguments, scriptFileFolder, errorsAndInfos);
+        processRunner.RunProcess(DotNetExecutableFileName, arguments, scriptFileFolder, errorsAndInfos);
     }
 }
