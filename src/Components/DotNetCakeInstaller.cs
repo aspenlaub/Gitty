@@ -9,13 +9,15 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 
 public class DotNetCakeInstaller : IDotNetCakeInstaller {
     private const string CakeToolId = "cake.tool";
-    private const string VeryOldPinnedCakeToolVersion = "2.0.0";
-    private const string OldPinnedCakeToolVersion = "3.1.0";
-    private const string PinnedCakeToolVersion = "4.0.0";
+    private const string VeryOldPinnedCakeToolVersion = "3.1.0";
+    private const string OldPinnedCakeToolVersion = "4.0.0";
+    private const string PinnedCakeToolVersion = "4.2.0";
     private const string DotNetExecutableFileName = "dotnet";
     private const string DotNetToolListArguments = "tool list --global";
-    private const string DotNetInstallCakeToolArguments = "tool install Cake.Tool --version 4.0.0 --global";
-    private const string DotNetUpdateCakeToolArguments = "tool update Cake.Tool --version 4.0.0 --global";
+    private const string DotNetInstallCakeToolArguments = "tool install Cake.Tool --version "
+        + PinnedCakeToolVersion + " --global";
+    private const string DotNetUpdateCakeToolArguments = "tool update Cake.Tool --version "
+        + PinnedCakeToolVersion + " --global";
 
     private readonly IProcessRunner _ProcessRunner;
     private readonly IFolder _WorkingFolder;
