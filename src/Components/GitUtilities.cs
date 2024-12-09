@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
-using ICSharpCode.SharpZipLib.Zip;
 using LibGit2Sharp;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
@@ -35,6 +35,8 @@ public class GitUtilities : IGitUtilities {
     public void Clone(string url, string branch, IFolder folder, CloneOptions cloneOptions, bool useCache, Func<bool> extraCacheCondition, Action onCloned, IErrorsAndInfos errorsAndInfos) {
         var canCloneBeUsed = useCache && CloneFromCache(url, branch, folder);
         var zipFileName = CloneZipFileName(url, branch);
+        if (zipFileName == null) { return; }
+
         if (canCloneBeUsed && !extraCacheCondition()) {
             canCloneBeUsed = false;
             if (folder.Exists()) {
@@ -53,8 +55,7 @@ public class GitUtilities : IGitUtilities {
 
         folder.DeleteLinks();
 
-        var fastZip = new FastZip();
-        fastZip.CreateZip(zipFileName, folder.FullName, true, "");
+        ZipFile.CreateFromDirectory(folder.FullName, zipFileName);
     }
 
     protected bool CloneFromCache(string url, string branch, IFolder folder) {
@@ -63,8 +64,7 @@ public class GitUtilities : IGitUtilities {
         var zipFileName = CloneZipFileName(url, branch);
         if (!File.Exists(zipFileName)) { return false; }
 
-        var fastZip = new FastZip();
-        fastZip.ExtractZip(zipFileName, folder.FullName, FastZip.Overwrite.Always, _ => true, null, null, true);
+        ZipFile.ExtractToDirectory(zipFileName, folder.FullName, true);
         return true;
     }
 
