@@ -17,12 +17,12 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test;
 public class GitPullTest {
     protected static TestTargetFolder ChabTarget = new(nameof(GitPullTest), "Chab");
     protected static ITestTargetRunner TargetRunner;
-    private static IContainer Container;
+    private static IContainer _container;
 
     [ClassInitialize]
     public static void ClassInitialize(TestContext context) {
-        Container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
-        TargetRunner = Container.Resolve<ITestTargetRunner>();
+        _container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
+        TargetRunner = _container.Resolve<ITestTargetRunner>();
     }
 
     [TestInitialize]
@@ -37,7 +37,7 @@ public class GitPullTest {
 
     [TestMethod]
     public void CanPullLatestChanges() {
-        var gitUtilities = Container.Resolve<IGitUtilities>();
+        var gitUtilities = _container.Resolve<IGitUtilities>();
         var errorsAndInfos = new ErrorsAndInfos();
         var url = "https://github.com/aspenlaub/" + ChabTarget.SolutionId + ".git";
         gitUtilities.Clone(url, "master", ChabTarget.Folder(), new CloneOptions { BranchName = "master" }, true, errorsAndInfos);

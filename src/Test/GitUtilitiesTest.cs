@@ -21,18 +21,18 @@ public class GitUtilitiesTest {
     protected IFolder DevelopmentFolder, MasterFolder, NoGitFolder;
     protected static ITestTargetFolder DoNotPullFolder = new TestTargetFolder(nameof(GitUtilitiesTest) + @"DoNotPull", "Pakled");
     protected static ITestTargetRunner TargetRunner;
-    private static IContainer Container;
+    private static IContainer _container;
     private IGitUtilities _Sut;
 
     [ClassInitialize]
     public static void ClassInitialize(TestContext context) {
-        Container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
-        TargetRunner = Container.Resolve<ITestTargetRunner>();
+        _container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
+        TargetRunner = _container.Resolve<ITestTargetRunner>();
     }
 
     [TestInitialize]
     public void Initialize() {
-        _Sut = Container.Resolve<IGitUtilities>();
+        _Sut = _container.Resolve<IGitUtilities>();
         var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitUtilitiesTest));
         DevelopmentFolder = checkOutFolder.SubFolder("Pakled-Development");
         MasterFolder = checkOutFolder.SubFolder("Pakled-Master");
@@ -121,7 +121,7 @@ public class GitUtilitiesTest {
         CloneRepository(DoNotPullFolder.Folder(), "do-not-pull-from-me", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsFalse(_Sut.IsBranchAheadOfMaster(MasterFolder));
-        Container.Resolve<IEmbeddedCakeScriptCopier>().CopyCakeScriptEmbeddedInAssembly(Assembly.GetExecutingAssembly(), BuildCake.Standard, DoNotPullFolder, errorsAndInfos);
+        _container.Resolve<IEmbeddedCakeScriptCopier>().CopyCakeScriptEmbeddedInAssembly(Assembly.GetExecutingAssembly(), BuildCake.Standard, DoNotPullFolder, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         TargetRunner.RunBuildCakeScript(BuildCake.Standard, DoNotPullFolder, "CleanRestorePull", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());

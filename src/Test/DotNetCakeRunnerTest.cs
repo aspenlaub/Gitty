@@ -18,24 +18,24 @@ public class DotNetCakeRunnerTest {
     protected static IDotNetCakeRunner Sut;
     protected static IFolder ScriptsFolder;
     protected const string ThisIsNotCake = @"This is not a cake!";
-    private static IContainer Container;
+    private static IContainer _container;
 
     [ClassInitialize]
     public static void Initialize(TestContext context) {
-        Container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).Build();
+        _container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).Build();
 
         ScriptsFolder = CakeScriptsFolder();
         DeleteFolder(ScriptsFolder);
         Directory.CreateDirectory(ScriptsFolder.FullName);
 
-        var cakeScriptReader = Container.Resolve<IEmbeddedCakeScriptReader>();
+        var cakeScriptReader = _container.Resolve<IEmbeddedCakeScriptReader>();
         var errorsAndInfos = new ErrorsAndInfos();
         foreach (var cakeId in new[] { "success", "failure", "net5" }) {
             File.WriteAllText(ScriptsFolder.FullName + @"\" + cakeId + ".cake", cakeScriptReader.ReadCakeScriptFromAssembly(Assembly.GetExecutingAssembly(), cakeId + ".cake", errorsAndInfos));
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
         }
 
-        Sut = Container.Resolve<IDotNetCakeRunner>();
+        Sut = _container.Resolve<IDotNetCakeRunner>();
     }
 
     [ClassCleanup]
@@ -78,7 +78,7 @@ public class DotNetCakeRunnerTest {
         Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Duration")));
         Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"00:00:00")));
         Assert.IsFalse(errorsAndInfos.Infos.Any(m => m.Contains(ThisIsNotCake)));
-        var logger = Container.Resolve<ISimpleLogger>();
+        var logger = _container.Resolve<ISimpleLogger>();
         Assert.IsNotNull(logger);
         var logEntries = logger.FindLogEntries(_ => true);
         Assert.IsTrue(errorsAndInfos.Errors.All(e => logEntries.Any(le => le.LogLevel == LogLevel.Error && le.Message.Contains(e))));

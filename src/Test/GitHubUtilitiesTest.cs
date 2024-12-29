@@ -18,13 +18,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test;
 [TestClass]
 public class GitHubUtilitiesTest {
     protected IFolder PakledMasterFolder, PakledDevelopmentFolder, DvinMasterFolder;
-    private static IContainer Container;
+    private static IContainer _container;
     private IGitUtilities _GitUtilities;
 
     [TestInitialize]
     public void Initialize() {
-        Container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
-        _GitUtilities = Container.Resolve<IGitUtilities>();
+        _container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
+        _GitUtilities = _container.Resolve<IGitUtilities>();
         var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitHubUtilitiesTest));
         PakledMasterFolder = checkOutFolder.SubFolder("PakledCore-Master");
         PakledDevelopmentFolder = checkOutFolder.SubFolder("PakledCore-Development");
@@ -63,7 +63,7 @@ public class GitHubUtilitiesTest {
 
     [TestMethod]
     public async Task CanCheckIfPullRequestsExist() {
-        var sut = Container.Resolve<IGitHubUtilities>();
+        var sut = _container.Resolve<IGitHubUtilities>();
         var errorsAndInfos = new ErrorsAndInfos();
         var hasOpenPullRequest = await HasOpenPullRequestAsync(sut, "", errorsAndInfos);
         if (hasOpenPullRequest.Inconclusive) { return; }
@@ -134,7 +134,7 @@ public class GitHubUtilitiesTest {
 
     [TestMethod]
     public async Task CanCheckHowManyPullRequestsExist() {
-        var sut = Container.Resolve<IGitHubUtilities>();
+        var sut = _container.Resolve<IGitHubUtilities>();
         var errorsAndInfos = new ErrorsAndInfos();
         try {
             var numberOfPullRequests = await sut.GetNumberOfPullRequestsAsync(PakledMasterFolder, errorsAndInfos);
