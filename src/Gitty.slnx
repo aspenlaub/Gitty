@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Gitty.csproj" />
+  <Project Path="Test/Gitty.Test.csproj" />
+</Solution>
