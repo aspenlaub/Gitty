@@ -42,7 +42,7 @@ public class TestTargetFolder(string testClassId, string solutionId) : ITestTarg
             deleter.DeleteFolder(Folder());
         }
 
-        var folder = MasterBinFolder();
+        IFolder folder = MasterBinFolder();
         if (folder.Exists()) {
             deleter.DeleteFolder(folder);
         }

@@ -6,6 +6,7 @@ using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
+using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Autofac;
 using LibGit2Sharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -37,13 +38,13 @@ public class GitPullTest {
 
     [TestMethod]
     public void CanPullLatestChanges() {
-        var gitUtilities = _container.Resolve<IGitUtilities>();
+        IGitUtilities gitUtilities = _container.Resolve<IGitUtilities>();
         var errorsAndInfos = new ErrorsAndInfos();
-        var url = "https://github.com/aspenlaub/" + ChabTarget.SolutionId + ".git";
+        string url = "https://github.com/aspenlaub/" + ChabTarget.SolutionId + ".git";
         gitUtilities.Clone(url, "master", ChabTarget.Folder(), new CloneOptions { BranchName = "master" }, true, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
 
-        var addinsFolder = ChabTarget.Folder().SubFolder("tools").SubFolder("Addins");
+        IFolder addinsFolder = ChabTarget.Folder().SubFolder("tools").SubFolder("Addins");
         if (addinsFolder.Exists()) {
             var deleter = new FolderDeleter();
             deleter.DeleteFolder(addinsFolder);
@@ -54,11 +55,11 @@ public class GitPullTest {
         gitUtilities.Reset(ChabTarget.Folder(), "b8c4dee904e5748fce9aba8f912c37cf13f87a7c", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
 
-        var projectFile = ChabTarget.Folder().SubFolder("src").SubFolder("Test").FullName + '\\' + ChabTarget.SolutionId + @"Standard.Test.csproj";
-        Assert.IsFalse(File.ReadAllText(projectFile).Contains("<PackageReference Include=\"Microsoft.NET.Test.Sdk\""));
+        string projectFile = ChabTarget.Folder().SubFolder("src").SubFolder("Test").FullName + '\\' + ChabTarget.SolutionId + @"Standard.Test.csproj";
+        Assert.DoesNotContain("<PackageReference Include=\"Microsoft.NET.Test.Sdk\"", File.ReadAllText(projectFile));
         gitUtilities.Pull(ChabTarget.Folder(), "UserName", "user.name@aspenlaub.org");
 
         projectFile = projectFile.Replace("Standard", "");
-        Assert.IsTrue(File.ReadAllText(projectFile).Contains("<PackageReference Include=\"Microsoft.NET.Test.Sdk\""));
+        Assert.Contains("<PackageReference Include=\"Microsoft.NET.Test.Sdk\"", File.ReadAllText(projectFile));
     }
 }

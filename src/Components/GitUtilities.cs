@@ -33,8 +33,8 @@ public class GitUtilities : IGitUtilities {
     }
 
     public void Clone(string url, string branch, IFolder folder, CloneOptions cloneOptions, bool useCache, Func<bool> extraCacheCondition, Action onCloned, IErrorsAndInfos errorsAndInfos) {
-        var canCloneBeUsed = useCache && CloneFromCache(url, branch, folder);
-        var zipFileName = CloneZipFileName(url, branch);
+        bool canCloneBeUsed = useCache && CloneFromCache(url, branch, folder);
+        string zipFileName = CloneZipFileName(url, branch);
         if (zipFileName == null) { return; }
 
         if (canCloneBeUsed && !extraCacheCondition()) {
@@ -61,7 +61,7 @@ public class GitUtilities : IGitUtilities {
     protected bool CloneFromCache(string url, string branch, IFolder folder) {
         DeleteOldDownloadFiles("*---*.*");
 
-        var zipFileName = CloneZipFileName(url, branch);
+        string zipFileName = CloneZipFileName(url, branch);
         if (!File.Exists(zipFileName)) { return false; }
 
         ZipFile.ExtractToDirectory(zipFileName, folder.FullName, true);
@@ -69,12 +69,12 @@ public class GitUtilities : IGitUtilities {
     }
 
     private string CloneZipFileName(string url, string branch) {
-        var isMainOrMaster = MasterMaind.IsMainOrMaster(branch);
+        bool isMainOrMaster = MasterMaind.IsMainOrMaster(branch);
         return DownloadFolder() + '\\' + url.Replace(':', '-').Replace('/', '-').Replace('.', '-') + (isMainOrMaster ? "" : '-' + branch) + ".zip";
     }
 
     public string DownloadFolder() {
-        var downloadFolder = Path.GetTempPath() + @"\AspenlaubDownloads";
+        string downloadFolder = Path.GetTempPath() + @"\AspenlaubDownloads";
         if (!Directory.Exists(downloadFolder)) {
             Directory.CreateDirectory(downloadFolder);
         }
@@ -89,8 +89,8 @@ public class GitUtilities : IGitUtilities {
     }
 
     public void VerifyThatThereAreNoUncommittedChanges(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
-        var files = FilesWithUncommittedChanges(repositoryFolder);
-        foreach (var file in files) {
+        IList<string> files = FilesWithUncommittedChanges(repositoryFolder);
+        foreach (string file in files) {
             errorsAndInfos.Errors.Add(string.Format(Properties.Resources.UncommittedChangeTo, file));
         }
     }
@@ -103,10 +103,10 @@ public class GitUtilities : IGitUtilities {
     }
 
     protected void DeleteOldDownloadFiles(string wildcard) {
-        var downloadFolder = DownloadFolder();
+        string downloadFolder = DownloadFolder();
         if (!Directory.Exists(downloadFolder)) { return; }
 
-        foreach (var file in Directory.GetFiles(downloadFolder, wildcard).Where(f => File.GetLastWriteTime(f).AddDays(1) < DateTime.Now)) {
+        foreach (string file in Directory.GetFiles(downloadFolder, wildcard).Where(f => File.GetLastWriteTime(f).AddDays(1) < DateTime.Now)) {
             File.Delete(file);
         }
     }
@@ -115,7 +115,7 @@ public class GitUtilities : IGitUtilities {
         repositoryFolder.DeleteLinks();
 
         using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
-        var commit = repo.Head.Commits.FirstOrDefault(c => c.Sha == headTipIdSha);
+        Commit commit = repo.Head.Commits.FirstOrDefault(c => c.Sha == headTipIdSha);
         if (commit == null) {
             errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CommitNotFound, headTipIdSha));
         } else {
@@ -126,17 +126,17 @@ public class GitUtilities : IGitUtilities {
 
     public bool IsBranchAheadOfMaster(IFolder repositoryFolder) {
         using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
-        var head = repo.Head;
-        var mainOrMasterBranch = MasterMaind.RemoteMainOrMasterBranch(repo.Branches);
-        var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(head.Tip, mainOrMasterBranch.Tip);
+        Branch head = repo.Head;
+        Branch mainOrMasterBranch = MasterMaind.RemoteMainOrMasterBranch(repo.Branches);
+        HistoryDivergence divergence = repo.ObjectDatabase.CalculateHistoryDivergence(head.Tip, mainOrMasterBranch.Tip);
         return divergence.AheadBy > 0;
     }
 
     public bool IsBranchBehindMaster(IFolder repositoryFolder) {
         using var repo = new Repository(repositoryFolder.FullName, new RepositoryOptions());
-        var head = repo.Head;
-        var mainOrMasterBranch = MasterMaind.RemoteMainOrMasterBranch(repo.Branches);
-        var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(head.Tip, mainOrMasterBranch.Tip);
+        Branch head = repo.Head;
+        Branch mainOrMasterBranch = MasterMaind.RemoteMainOrMasterBranch(repo.Branches);
+        HistoryDivergence divergence = repo.ObjectDatabase.CalculateHistoryDivergence(head.Tip, mainOrMasterBranch.Tip);
         return divergence.BehindBy > 0;
     }
 
@@ -151,8 +151,8 @@ public class GitUtilities : IGitUtilities {
             return;
         }
 
-        var url = remotes.First().Url;
-        var urlComponents = url.Split('/');
+        string url = remotes.First().Url;
+        string[] urlComponents = url.Split('/');
         if ("github.com" != urlComponents[^3]) {
             errorsAndInfos.Errors.Add(string.Format(Properties.Resources.CannotInterpretRepositoryUrl, url));
             return;

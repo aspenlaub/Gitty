@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
@@ -28,9 +29,9 @@ public class DotNetCakeRunnerTest {
         DeleteFolder(ScriptsFolder);
         Directory.CreateDirectory(ScriptsFolder.FullName);
 
-        var cakeScriptReader = _container.Resolve<IEmbeddedCakeScriptReader>();
+        IEmbeddedCakeScriptReader cakeScriptReader = _container.Resolve<IEmbeddedCakeScriptReader>();
         var errorsAndInfos = new ErrorsAndInfos();
-        foreach (var cakeId in new[] { "success", "failure", "net5" }) {
+        foreach (string cakeId in new[] { "success", "failure", "net5" }) {
             File.WriteAllText(ScriptsFolder.FullName + @"\" + cakeId + ".cake", cakeScriptReader.ReadCakeScriptFromAssembly(Assembly.GetExecutingAssembly(), cakeId + ".cake", errorsAndInfos));
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
         }
@@ -60,7 +61,7 @@ public class DotNetCakeRunnerTest {
     public void CanCallScriptWithoutErrors() {
         var errorsAndInfos = new ErrorsAndInfos();
 
-        Sut.CallCake(ScriptsFolder.FullName + @"\success.cake", errorsAndInfos);
+        Sut.CallCake(ScriptsFolder.FullName + @"\success.cake", true, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Task")));
         Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Duration")));
@@ -71,16 +72,16 @@ public class DotNetCakeRunnerTest {
     public void CanCallScriptWithErrors() {
         var errorsAndInfos = new ErrorsAndInfos();
 
-        Sut.CallCake(ScriptsFolder.FullName + @"\" + "failure.cake", errorsAndInfos);
-        Assert.AreEqual(1, errorsAndInfos.Errors.Count);
+        Sut.CallCake(ScriptsFolder.FullName + @"\" + "failure.cake", true, errorsAndInfos);
+        Assert.HasCount(1, errorsAndInfos.Errors);
         Assert.AreEqual("This is not a cake!", errorsAndInfos.Errors[0]);
         Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Task")));
         Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Duration")));
         Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"00:00:00")));
         Assert.IsFalse(errorsAndInfos.Infos.Any(m => m.Contains(ThisIsNotCake)));
-        var logger = _container.Resolve<ISimpleLogger>();
+        ISimpleLogger logger = _container.Resolve<ISimpleLogger>();
         Assert.IsNotNull(logger);
-        var logEntries = logger.FindLogEntries(_ => true);
+        IList<ISimpleLogEntry> logEntries = logger.FindLogEntries(_ => true);
         Assert.IsTrue(errorsAndInfos.Errors.All(e => logEntries.Any(le => le.LogLevel == LogLevel.Error && le.Message.Contains(e))));
         Assert.IsTrue(errorsAndInfos.Infos.All(i => logEntries.Any(le => le.LogLevel == LogLevel.Information && le.Message.Contains(i))));
     }
@@ -88,7 +89,7 @@ public class DotNetCakeRunnerTest {
     [TestMethod]
     public void CanCallScriptAgainstNonExistingTargetButGetAnError() {
         var errorsAndInfos = new ErrorsAndInfos();
-        Sut.CallCake(ScriptsFolder.FullName + @"\success.cake", "NonExistingTarget", errorsAndInfos);
+        Sut.CallCake(ScriptsFolder.FullName + @"\success.cake", "NonExistingTarget", true, errorsAndInfos);
         Assert.IsTrue(errorsAndInfos.Errors.Any());
         Assert.IsTrue(errorsAndInfos.Errors.Any(e => e.Contains("The target 'NonExistingTarget' was not found")));
     }
@@ -96,7 +97,7 @@ public class DotNetCakeRunnerTest {
     [TestMethod]
     public void CanCallScriptAgainstAlternativeTarget() {
         var errorsAndInfos = new ErrorsAndInfos();
-        Sut.CallCake(ScriptsFolder.FullName + @"\success.cake", "AlternativeTarget", errorsAndInfos);
+        Sut.CallCake(ScriptsFolder.FullName + @"\success.cake", "AlternativeTarget", true, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsTrue(errorsAndInfos.Infos.Any(i => i.Contains("This is an alternative target")));
     }
@@ -105,10 +106,10 @@ public class DotNetCakeRunnerTest {
     public void CanCallScriptWithNet5Addin() {
         var errorsAndInfos = new ErrorsAndInfos();
 
-        Sut.CallCake(ScriptsFolder.FullName + @"\net5.cake", errorsAndInfos);
+        Sut.CallCake(ScriptsFolder.FullName + @"\net5.cake", true, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
         const string constructionStatement = "Constructing a strong thing";
-        Assert.IsTrue(errorsAndInfos.Infos.Contains(constructionStatement));
+        Assert.Contains(constructionStatement, errorsAndInfos.Infos);
         Assert.AreEqual("Success", errorsAndInfos.Infos[errorsAndInfos.Infos.IndexOf(constructionStatement) + 1]);
     }
 }

@@ -12,16 +12,28 @@ public class DotNetCakeRunner(IProcessRunner processRunner) : IDotNetCakeRunner 
         CallCake(scriptFileFullName, "", errorsAndInfos);
     }
 
+    public void CallCake(string scriptFileFullName, bool diagnoctics, IErrorsAndInfos errorsAndInfos) {
+        CallCake(scriptFileFullName, "", diagnoctics, errorsAndInfos);
+    }
+
     public void CallCake(string scriptFileFullName, string target, IErrorsAndInfos errorsAndInfos) {
+        CallCake(scriptFileFullName, target, false, errorsAndInfos);
+    }
+
+    public void CallCake(string scriptFileFullName, string target, bool diagnostics, IErrorsAndInfos errorsAndInfos) {
         if (!File.Exists(scriptFileFullName)) {
             errorsAndInfos.Errors.Add(string.Format(Properties.Resources.FileNotFound, scriptFileFullName));
             return;
         }
 
         var scriptFileFolder = new Folder(scriptFileFullName.Substring(0, scriptFileFullName.LastIndexOf('\\')));
-        var arguments = "cake \"" + scriptFileFullName + "\"";
+        string arguments = "cake \"" + scriptFileFullName + "\"";
         if (target != "") {
             arguments = arguments + " --target \"" + target + "\"";
+        }
+
+        if (diagnostics) {
+            arguments += " --verbosity=diagnostic";
         }
         processRunner.RunProcess(_dotNetExecutableFileName, arguments, scriptFileFolder, errorsAndInfos);
     }

@@ -13,18 +13,18 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 
 public class GitHubUtilities(IGitUtilities gitUtilities, ISecretRepository secretRepository) : IGitHubUtilities {
     public async Task<bool> HasOpenPullRequestAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
-        var pullRequests = await GetPullRequestsAsync(repositoryFolder, "open", errorsAndInfos);
+        IList<IPullRequest> pullRequests = await GetPullRequestsAsync(repositoryFolder, "open", errorsAndInfos);
         return pullRequests.Any();
     }
 
     public async Task<bool> HasOpenPullRequestAsync(IFolder repositoryFolder, string semicolonSeparatedListOfPullRequestNumbersToIgnore, IErrorsAndInfos errorsAndInfos) {
-        var pullRequests = await GetPullRequestsAsync(repositoryFolder, "open", errorsAndInfos);
+        IList<IPullRequest> pullRequests = await GetPullRequestsAsync(repositoryFolder, "open", errorsAndInfos);
         return pullRequests.Any(p => !semicolonSeparatedListOfPullRequestNumbersToIgnore.Split(';').Contains(p.Number));
     }
 
     public async Task<bool> HasOpenPullRequestForThisBranchAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
-        var pullRequests = await GetPullRequestsAsync(repositoryFolder, "open", errorsAndInfos);
-        var checkedOutBranch = gitUtilities.CheckedOutBranch(repositoryFolder);
+        IList<IPullRequest> pullRequests = await GetPullRequestsAsync(repositoryFolder, "open", errorsAndInfos);
+        string checkedOutBranch = gitUtilities.CheckedOutBranch(repositoryFolder);
         return pullRequests.Any(p => p.Branch == checkedOutBranch);
     }
 
@@ -34,20 +34,20 @@ public class GitHubUtilities(IGitUtilities gitUtilities, ISecretRepository secre
 
 
     public async Task<bool> HasPullRequestForThisBranchAndItsHeadTipAsync(IFolder repositoryFolder, IErrorsAndInfos errorsAndInfos) {
-        var pullRequests = await GetPullRequestsAsync(repositoryFolder, "all", errorsAndInfos);
-        var checkedOutBranch = gitUtilities.CheckedOutBranch(repositoryFolder);
-        var headTipIdSha = gitUtilities.HeadTipIdSha(repositoryFolder);
+        IList<IPullRequest> pullRequests = await GetPullRequestsAsync(repositoryFolder, "all", errorsAndInfos);
+        string checkedOutBranch = gitUtilities.CheckedOutBranch(repositoryFolder);
+        string headTipIdSha = gitUtilities.HeadTipIdSha(repositoryFolder);
         return pullRequests.Any(p => p.Branch == checkedOutBranch && p.Sha == headTipIdSha);
     }
 
     protected async Task<IList<IPullRequest>> GetPullRequestsAsync(IFolder repositoryFolder, string state, IErrorsAndInfos errorsAndInfos) {
         var pullRequests = new List<IPullRequest>();
-        gitUtilities.IdentifyOwnerAndName(repositoryFolder, out var owner, out var name, errorsAndInfos);
+        gitUtilities.IdentifyOwnerAndName(repositoryFolder, out string owner, out string name, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) { return pullRequests; }
 
 
-        var url = $"https://api.github.com/repos/{owner}/{name}/pulls?state=" + state;
-        var result = await RunJsonWebRequestAsync(url, owner, errorsAndInfos);
+        string url = $"https://api.github.com/repos/{owner}/{name}/pulls?state=" + state;
+        JsonElement? result = await RunJsonWebRequestAsync(url, owner, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) { return pullRequests; }
 
         if (result == null) {
@@ -61,18 +61,18 @@ public class GitHubUtilities(IGitUtilities gitUtilities, ISecretRepository secre
     }
 
     protected async Task<JsonElement?> RunJsonWebRequestAsync(string url, string owner, IErrorsAndInfos errorsAndInfos) {
-        var personalAccessTokens = await GetPersonalAccessTokensAsync(errorsAndInfos);
+        PersonalAccessTokens personalAccessTokens = await GetPersonalAccessTokensAsync(errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             return null;
         }
-        var personalAccessToken = personalAccessTokens.FirstOrDefault(p => p.Owner == owner && p.Purpose == "API");
+        PersonalAccessToken personalAccessToken = personalAccessTokens.FirstOrDefault(p => p.Owner == owner && p.Purpose == "API");
 
         using var client = new HttpClient();
         client.DefaultRequestHeaders.Add("User-Agent", GetType().Namespace);
         if (personalAccessToken != null) {
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", personalAccessToken.Token);
         }
-        var response = await client.GetAsync(url);
+        HttpResponseMessage response = await client.GetAsync(url);
         if (HttpStatusCode.OK != response.StatusCode) {
             errorsAndInfos.Errors.Add(Properties.Resources.CouldNotGetListOfPullRequests);
             return null;
@@ -100,7 +100,7 @@ public class GitHubUtilities(IGitUtilities gitUtilities, ISecretRepository secre
 
     private async Task<PersonalAccessTokens> GetPersonalAccessTokensAsync(IErrorsAndInfos errorsAndInfos) {
         var personalAccessTokensSecret = new PersonalAccessTokensSecret();
-        var personalAccessTokens = await secretRepository.GetAsync(personalAccessTokensSecret, errorsAndInfos);
+        PersonalAccessTokens personalAccessTokens = await secretRepository.GetAsync(personalAccessTokensSecret, errorsAndInfos);
         return personalAccessTokens;
     }
 }

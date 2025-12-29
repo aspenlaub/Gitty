@@ -9,15 +9,15 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
 
 public class TestTargetRunner(IDotNetCakeRunner cakeRunner, IEmbeddedCakeScriptReader embeddedCakeScriptReader) : ITestTargetRunner {
     public void RunBuildCakeScript(string buildCakeName, ITestTargetFolder testTargetFolder, string target, IErrorsAndInfos errorsAndInfos) {
-        var scriptFileFullName = testTargetFolder.FullName() + @"\" + buildCakeName;
-        cakeRunner.CallCake(scriptFileFullName, target, errorsAndInfos);
+        string scriptFileFullName = testTargetFolder.FullName() + @"\" + buildCakeName;
+        cakeRunner.CallCake(scriptFileFullName, target, true, errorsAndInfos);
     }
 
     public void IgnoreOutdatedBuildCakePendingChangesAndDoNotPush(Assembly assembly, ITestTargetFolder targetFolder, IErrorsAndInfos errorsAndInfos) {
-        var cakeScript = embeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, BuildCake.Standard, errorsAndInfos);
+        string cakeScript = embeddedCakeScriptReader.ReadCakeScriptFromAssembly(assembly, BuildCake.Standard, errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) { return; }
 
-        var cakeScriptFileFullName = targetFolder.Folder().FullName + @"\" + BuildCake.Standard;
+        string cakeScriptFileFullName = targetFolder.Folder().FullName + @"\" + BuildCake.Standard;
         File.WriteAllText(cakeScriptFileFullName, cakeScript);
 
         RunBuildCakeScript(BuildCake.Standard, targetFolder, "IgnoreOutdatedBuildCakePendingChangesAndDoNotPush", errorsAndInfos);

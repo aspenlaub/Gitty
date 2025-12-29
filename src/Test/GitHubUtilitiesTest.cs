@@ -25,7 +25,7 @@ public class GitHubUtilitiesTest {
     public void Initialize() {
         _container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
         _GitUtilities = _container.Resolve<IGitUtilities>();
-        var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitHubUtilitiesTest));
+        IFolder checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitHubUtilitiesTest));
         PakledMasterFolder = checkOutFolder.SubFolder("PakledCore-Master");
         PakledDevelopmentFolder = checkOutFolder.SubFolder("PakledCore-Development");
         DvinMasterFolder = checkOutFolder.SubFolder("Dvin-Master");
@@ -41,7 +41,7 @@ public class GitHubUtilitiesTest {
     [TestCleanup]
     public void CleanUp() {
         var deleter = new FolderDeleter();
-        foreach (var folder in new[] { PakledMasterFolder, PakledDevelopmentFolder, DvinMasterFolder }.Where(folder => folder.Exists())) {
+        foreach (IFolder folder in new[] { PakledMasterFolder, PakledDevelopmentFolder, DvinMasterFolder }.Where(folder => folder.Exists())) {
             deleter.DeleteFolder(folder);
         }
     }
@@ -57,15 +57,15 @@ public class GitHubUtilitiesTest {
             deleter.DeleteFolder(folder);
         }
 
-        var url = $"https://github.com/aspenlaub/{repositoryId}.git";
+        string url = $"https://github.com/aspenlaub/{repositoryId}.git";
         _GitUtilities.Clone(url, branch, new Folder(folder.FullName), new CloneOptions { BranchName = branch }, true, errorsAndInfos);
     }
 
     [TestMethod]
     public async Task CanCheckIfPullRequestsExist() {
-        var sut = _container.Resolve<IGitHubUtilities>();
+        IGitHubUtilities sut = _container.Resolve<IGitHubUtilities>();
         var errorsAndInfos = new ErrorsAndInfos();
-        var hasOpenPullRequest = await HasOpenPullRequestAsync(sut, "", errorsAndInfos);
+        YesNoInconclusive hasOpenPullRequest = await HasOpenPullRequestAsync(sut, "", errorsAndInfos);
         if (hasOpenPullRequest.Inconclusive) { return; }
 
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
@@ -89,7 +89,7 @@ public class GitHubUtilitiesTest {
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsTrue(hasOpenPullRequest.YesNo);
 
-        var hasPullRequest = await HasPullRequestForThisBranchAndItsHeadTipAsync(sut, errorsAndInfos);
+        YesNoInconclusive hasPullRequest = await HasPullRequestForThisBranchAndItsHeadTipAsync(sut, errorsAndInfos);
         if (hasOpenPullRequest.Inconclusive) { return; }
 
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
@@ -97,8 +97,8 @@ public class GitHubUtilitiesTest {
     }
 
     protected async Task<YesNoInconclusive> HasOpenPullRequestAsync(IGitHubUtilities sut, string semicolonSeparatedListOfPullRequestNumbersToIgnore, ErrorsAndInfos errorsAndInfos) {
-        var inconclusive = false;
-        var hasOpenPullRequest = false;
+        bool inconclusive = false;
+        bool hasOpenPullRequest = false;
         try {
             hasOpenPullRequest = await sut.HasOpenPullRequestAsync(PakledMasterFolder, semicolonSeparatedListOfPullRequestNumbersToIgnore, errorsAndInfos);
         } catch (WebException) {
@@ -109,8 +109,8 @@ public class GitHubUtilitiesTest {
     }
 
     protected async Task<YesNoInconclusive> HasOpenPullRequestForThisBranchAsync(IGitHubUtilities sut, bool master, ErrorsAndInfos errorsAndInfos) {
-        var inconclusive = false;
-        var hasOpenPullRequest = false;
+        bool inconclusive = false;
+        bool hasOpenPullRequest = false;
         try {
             hasOpenPullRequest = await sut.HasOpenPullRequestForThisBranchAsync(master ? PakledMasterFolder : PakledDevelopmentFolder, errorsAndInfos);
         } catch (WebException) {
@@ -121,8 +121,8 @@ public class GitHubUtilitiesTest {
     }
 
     protected async Task<YesNoInconclusive> HasPullRequestForThisBranchAndItsHeadTipAsync(IGitHubUtilities sut, ErrorsAndInfos errorsAndInfos) {
-        var inconclusive = false;
-        var hasOpenPullRequest = false;
+        bool inconclusive = false;
+        bool hasOpenPullRequest = false;
         try {
             hasOpenPullRequest = await sut.HasPullRequestForThisBranchAndItsHeadTipAsync(PakledDevelopmentFolder, errorsAndInfos);
         } catch (WebException) {
@@ -134,12 +134,12 @@ public class GitHubUtilitiesTest {
 
     [TestMethod]
     public async Task CanCheckHowManyPullRequestsExist() {
-        var sut = _container.Resolve<IGitHubUtilities>();
+        IGitHubUtilities sut = _container.Resolve<IGitHubUtilities>();
         var errorsAndInfos = new ErrorsAndInfos();
         try {
-            var numberOfPullRequests = await sut.GetNumberOfPullRequestsAsync(PakledMasterFolder, errorsAndInfos);
+            int numberOfPullRequests = await sut.GetNumberOfPullRequestsAsync(PakledMasterFolder, errorsAndInfos);
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-            Assert.IsTrue(numberOfPullRequests > 0);
+            Assert.IsGreaterThan(0, numberOfPullRequests);
         } catch (WebException) {
         }
     }

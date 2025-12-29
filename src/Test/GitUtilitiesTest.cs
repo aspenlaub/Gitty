@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
@@ -33,7 +34,7 @@ public class GitUtilitiesTest {
     [TestInitialize]
     public void Initialize() {
         _Sut = _container.Resolve<IGitUtilities>();
-        var checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitUtilitiesTest));
+        IFolder checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitUtilitiesTest));
         DevelopmentFolder = checkOutFolder.SubFolder("Pakled-Development");
         MasterFolder = checkOutFolder.SubFolder("Pakled-Master");
         NoGitFolder = checkOutFolder.SubFolder("NoGit");
@@ -53,7 +54,7 @@ public class GitUtilitiesTest {
     [TestCleanup]
     public void CleanUp() {
         var deleter = new FolderDeleter();
-        foreach (var folder in new[] { DevelopmentFolder, MasterFolder, NoGitFolder }.Where(folder => folder.Exists())) {
+        foreach (IFolder folder in new[] { DevelopmentFolder, MasterFolder, NoGitFolder }.Where(folder => folder.Exists())) {
             deleter.DeleteFolder(folder);
         }
 
@@ -78,7 +79,7 @@ public class GitUtilitiesTest {
     [TestMethod]
     public void CanIdentifyCheckedOutBranch() {
         Assert.AreEqual("development", _Sut.CheckedOutBranch(DevelopmentFolder));
-        var developmentSubFolder = DevelopmentFolder.SubFolder("src").SubFolder("Test");
+        IFolder developmentSubFolder = DevelopmentFolder.SubFolder("src").SubFolder("Test");
         Assert.AreEqual("development", _Sut.CheckedOutBranch(developmentSubFolder));
         Assert.AreEqual("master", _Sut.CheckedOutBranch(MasterFolder));
         Assert.AreEqual("", _Sut.CheckedOutBranch(NoGitFolder));
@@ -86,9 +87,9 @@ public class GitUtilitiesTest {
 
     [TestMethod]
     public void CanGetHeadTipIdSha() {
-        var headTipIdSha = _Sut.HeadTipIdSha(MasterFolder);
+        string headTipIdSha = _Sut.HeadTipIdSha(MasterFolder);
         Assert.IsFalse(string.IsNullOrEmpty(headTipIdSha));
-        Assert.IsTrue(headTipIdSha.Length >= 40);
+        Assert.IsGreaterThanOrEqualTo(40, headTipIdSha.Length);
     }
 
     [TestMethod]
@@ -131,7 +132,7 @@ public class GitUtilitiesTest {
     [TestMethod]
     public void CanIdentifyUrlOwnerAndName() {
         var errorsAndInfos = new ErrorsAndInfos();
-        _Sut.IdentifyOwnerAndName(MasterFolder, out var owner, out var name, errorsAndInfos);
+        _Sut.IdentifyOwnerAndName(MasterFolder, out string owner, out string name, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.AreEqual("aspenlaub", owner);
         Assert.AreEqual("Pakled", name);
@@ -139,9 +140,9 @@ public class GitUtilitiesTest {
 
     [TestMethod]
     public void CanGetAllIdShas() {
-        var allIdShas = _Sut.AllIdShas(MasterFolder);
-        Assert.IsTrue(allIdShas.Count > 50);
-        Assert.IsTrue(allIdShas.Contains(_Sut.HeadTipIdSha(MasterFolder)));
+        IList<string> allIdShas = _Sut.AllIdShas(MasterFolder);
+        Assert.IsGreaterThan(50, allIdShas.Count);
+        Assert.Contains(_Sut.HeadTipIdSha(MasterFolder), allIdShas);
     }
 
 }

@@ -14,9 +14,9 @@ public class ProcessRunner(ISimpleLogger simpleLogger, IMethodNamesFromStackFram
     : IProcessRunner {
     public void RunProcess(string executableFileName, string arguments, IFolder workingFolder, IErrorsAndInfos errorsAndInfos) {
         using (simpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner)))) {
-            var methodNamesFromStack = methodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
+            IList<string> methodNamesFromStack = methodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
             simpleLogger.LogInformationWithCallStack($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}", methodNamesFromStack);
-            using (var process = CreateProcess(executableFileName, arguments, workingFolder)) {
+            using (Process process = CreateProcess(executableFileName, arguments, workingFolder)) {
                 try {
                     var outputWaitHandle = new AutoResetEvent(false);
                     var errorWaitHandle = new AutoResetEvent(false);
@@ -47,7 +47,7 @@ public class ProcessRunner(ISimpleLogger simpleLogger, IMethodNamesFromStackFram
 
         messages.Add(e.Data);
         using (simpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(OnDataReceived)))) {
-            var methodNamesFromStack = methodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
+            IList<string> methodNamesFromStack = methodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
             switch (logLevel) {
                 case LogLevel.Warning:
                     simpleLogger.LogWarningWithCallStack(e.Data, methodNamesFromStack);
@@ -55,6 +55,11 @@ public class ProcessRunner(ISimpleLogger simpleLogger, IMethodNamesFromStackFram
                 case LogLevel.Error:
                     simpleLogger.LogErrorWithCallStack(e.Data, methodNamesFromStack);
                     break;
+                case LogLevel.Trace:
+                case LogLevel.Debug:
+                case LogLevel.Information:
+                case LogLevel.Critical:
+                case LogLevel.None:
                 default:
                     simpleLogger.LogInformationWithCallStack(e.Data, methodNamesFromStack);
                     break;
