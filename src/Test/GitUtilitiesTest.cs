@@ -15,20 +15,22 @@ using LibGit2Sharp;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IContainer = Autofac.IContainer;
 
+#pragma warning disable CA1859
+
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test;
 
 [TestClass]
 public class GitUtilitiesTest {
     protected IFolder DevelopmentFolder, MasterFolder, NoGitFolder;
-    protected static ITestTargetFolder DoNotPullFolder = new TestTargetFolder(nameof(GitUtilitiesTest) + @"DoNotPull", "Pakled");
-    protected static ITestTargetRunner TargetRunner;
+    private static readonly ITestTargetFolder _doNotPullFolder = new TestTargetFolder(nameof(GitUtilitiesTest) + @"DoNotPull", "Pakled");
+    private static ITestTargetRunner _targetRunner;
     private static IContainer _container;
     private IGitUtilities _Sut;
 
     [ClassInitialize]
     public static void ClassInitialize(TestContext context) {
-        _container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
-        TargetRunner = _container.Resolve<ITestTargetRunner>();
+        _container = new ContainerBuilder().UseGittyAndPegh("Gitty").UseGittyTestUtilities().Build();
+        _targetRunner = _container.Resolve<ITestTargetRunner>();
     }
 
     [TestInitialize]
@@ -38,7 +40,7 @@ public class GitUtilitiesTest {
         DevelopmentFolder = checkOutFolder.SubFolder("Pakled-Development");
         MasterFolder = checkOutFolder.SubFolder("Pakled-Master");
         NoGitFolder = checkOutFolder.SubFolder("NoGit");
-        DoNotPullFolder.Delete();
+        _doNotPullFolder.Delete();
 
         CleanUp();
         var errorsAndInfos = new ErrorsAndInfos();
@@ -58,7 +60,7 @@ public class GitUtilitiesTest {
             deleter.DeleteFolder(folder);
         }
 
-        DoNotPullFolder.Delete();
+        _doNotPullFolder.Delete();
     }
 
     private void CloneRepository(IFolder folder, string branch, IErrorsAndInfos errorsAndInfos) {
@@ -99,7 +101,7 @@ public class GitUtilitiesTest {
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         File.WriteAllText(MasterFolder.FullName + @"\change.cs", @"This is not a change");
         _Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
-        Assert.IsTrue(errorsAndInfos.Errors.Any(e => e.Contains(@"change.cs")));
+        Assert.Contains(e => e.Contains(@"change.cs"), errorsAndInfos.Errors);
     }
 
     [TestMethod]
@@ -109,7 +111,7 @@ public class GitUtilitiesTest {
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         File.WriteAllText(MasterFolder.FullName + @"\change.cs", @"This is not a change");
         _Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
-        Assert.IsTrue(errorsAndInfos.Errors.Any(e => e.Contains(@"change.cs")));
+        Assert.Contains(e => e.Contains(@"change.cs"), errorsAndInfos.Errors);
         errorsAndInfos = new ErrorsAndInfos();
         _Sut.Reset(MasterFolder, _Sut.HeadTipIdSha(MasterFolder), errorsAndInfos);
         _Sut.VerifyThatThereAreNoUncommittedChanges(MasterFolder, errorsAndInfos);
@@ -119,14 +121,14 @@ public class GitUtilitiesTest {
     [TestMethod]
     public void CanCheckIfIsBranchAheadOfOrBehindMaster() {
         var errorsAndInfos = new ErrorsAndInfos();
-        CloneRepository(DoNotPullFolder.Folder(), "do-not-pull-from-me", errorsAndInfos);
+        CloneRepository(_doNotPullFolder.Folder(), "do-not-pull-from-me", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsFalse(_Sut.IsBranchAheadOfMaster(MasterFolder));
-        _container.Resolve<IEmbeddedCakeScriptCopier>().CopyCakeScriptEmbeddedInAssembly(Assembly.GetExecutingAssembly(), BuildCake.Standard, DoNotPullFolder, errorsAndInfos);
+        _container.Resolve<IEmbeddedCakeScriptCopier>().CopyCakeScriptEmbeddedInAssembly(Assembly.GetExecutingAssembly(), BuildCake.Standard, _doNotPullFolder, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-        TargetRunner.RunBuildCakeScript(BuildCake.Standard, DoNotPullFolder, "CleanRestorePull", errorsAndInfos);
+        _targetRunner.RunBuildCakeScript(BuildCake.Standard, _doNotPullFolder, "CleanRestorePull", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-        Assert.IsTrue(_Sut.IsBranchAheadOfMaster(DoNotPullFolder.Folder()));
+        Assert.IsTrue(_Sut.IsBranchAheadOfMaster(_doNotPullFolder.Folder()));
     }
 
     [TestMethod]

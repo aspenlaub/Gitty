@@ -23,7 +23,7 @@ public class GitHubUtilitiesTest {
 
     [TestInitialize]
     public void Initialize() {
-        _container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).UseGittyTestUtilities().Build();
+        _container = new ContainerBuilder().UseGittyAndPegh("Gitty").UseGittyTestUtilities().Build();
         _GitUtilities = _container.Resolve<IGitUtilities>();
         IFolder checkOutFolder = new Folder(Path.GetTempPath()).SubFolder("AspenlaubTemp").SubFolder(nameof(GitHubUtilitiesTest));
         PakledMasterFolder = checkOutFolder.SubFolder("PakledCore-Master");

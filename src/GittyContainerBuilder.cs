@@ -1,15 +1,14 @@
 ﻿using Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Components;
-using Aspenlaub.Net.GitHub.CSharp.Pegh.Interfaces;
 using Autofac;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Aspenlaub.Net.GitHub.CSharp.Gitty;
 
 public static class GittyContainerBuilder {
-    public static ContainerBuilder UseGittyAndPegh(this ContainerBuilder builder, string applicationName, ICsArgumentPrompter csArgumentPrompter) {
-        builder.UsePegh(applicationName, csArgumentPrompter);
+    public static ContainerBuilder UseGittyAndPegh(this ContainerBuilder builder, string applicationName) {
+        builder.UsePeghWithoutCsLambdaCompiler(applicationName);
         builder.RegisterType<ProcessRunner>().As<IProcessRunner>();
         builder.RegisterType<EmbeddedCakeScriptReader>().As<IEmbeddedCakeScriptReader>();
         builder.RegisterType<DotNetCakeRunner>().As<IDotNetCakeRunner>();
@@ -20,8 +19,8 @@ public static class GittyContainerBuilder {
     }
 
     // ReSharper disable once UnusedMember.Global
-    public static IServiceCollection UseGittyAndPegh(this IServiceCollection services, string applicationName, ICsArgumentPrompter csArgumentPrompter) {
-        services.UsePegh(applicationName, csArgumentPrompter);
+    public static IServiceCollection UseGittyAndPegh(this IServiceCollection services, string applicationName) {
+        services.UsePeghWithoutCsLambdaCompiler(applicationName);
         services.AddTransient<IProcessRunner, ProcessRunner>();
         services.AddTransient<IEmbeddedCakeScriptReader, EmbeddedCakeScriptReader>();
         services.AddTransient<IDotNetCakeRunner, DotNetCakeRunner>();

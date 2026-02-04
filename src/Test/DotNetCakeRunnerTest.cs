@@ -16,27 +16,27 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test;
 
 [TestClass]
 public class DotNetCakeRunnerTest {
-    protected static IDotNetCakeRunner Sut;
-    protected static IFolder ScriptsFolder;
+    private static IDotNetCakeRunner _sut;
+    private static IFolder _scriptsFolder;
     protected const string ThisIsNotCake = @"This is not a cake!";
     private static IContainer _container;
 
     [ClassInitialize]
     public static void Initialize(TestContext context) {
-        _container = new ContainerBuilder().UseGittyAndPegh("Gitty", new DummyCsArgumentPrompter()).Build();
+        _container = new ContainerBuilder().UseGittyAndPegh("Gitty").Build();
 
-        ScriptsFolder = CakeScriptsFolder();
-        DeleteFolder(ScriptsFolder);
-        Directory.CreateDirectory(ScriptsFolder.FullName);
+        _scriptsFolder = CakeScriptsFolder();
+        DeleteFolder(_scriptsFolder);
+        Directory.CreateDirectory(_scriptsFolder.FullName);
 
         IEmbeddedCakeScriptReader cakeScriptReader = _container.Resolve<IEmbeddedCakeScriptReader>();
         var errorsAndInfos = new ErrorsAndInfos();
         foreach (string cakeId in new[] { "success", "failure", "net5" }) {
-            File.WriteAllText(ScriptsFolder.FullName + @"\" + cakeId + ".cake", cakeScriptReader.ReadCakeScriptFromAssembly(Assembly.GetExecutingAssembly(), cakeId + ".cake", errorsAndInfos));
+            File.WriteAllText(_scriptsFolder.FullName + @"\" + cakeId + ".cake", cakeScriptReader.ReadCakeScriptFromAssembly(Assembly.GetExecutingAssembly(), cakeId + ".cake", errorsAndInfos));
             Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsToString());
         }
 
-        Sut = _container.Resolve<IDotNetCakeRunner>();
+        _sut = _container.Resolve<IDotNetCakeRunner>();
     }
 
     [ClassCleanup]
@@ -61,24 +61,24 @@ public class DotNetCakeRunnerTest {
     public void CanCallScriptWithoutErrors() {
         var errorsAndInfos = new ErrorsAndInfos();
 
-        Sut.CallCake(ScriptsFolder.FullName + @"\success.cake", true, errorsAndInfos);
+        _sut.CallCake(_scriptsFolder.FullName + @"\success.cake", true, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
-        Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Task")));
-        Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Duration")));
-        Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"00:00:00")));
+        Assert.Contains(m => m.Contains(@"Task"), errorsAndInfos.Infos);
+        Assert.Contains(m => m.Contains(@"Duration"), errorsAndInfos.Infos);
+        Assert.Contains(m => m.Contains(@"00:00:00"), errorsAndInfos.Infos);
     }
 
     [TestMethod]
     public void CanCallScriptWithErrors() {
         var errorsAndInfos = new ErrorsAndInfos();
 
-        Sut.CallCake(ScriptsFolder.FullName + @"\" + "failure.cake", true, errorsAndInfos);
+        _sut.CallCake(_scriptsFolder.FullName + @"\" + "failure.cake", true, errorsAndInfos);
         Assert.HasCount(1, errorsAndInfos.Errors);
         Assert.AreEqual("This is not a cake!", errorsAndInfos.Errors[0]);
-        Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Task")));
-        Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"Duration")));
-        Assert.IsTrue(errorsAndInfos.Infos.Any(m => m.Contains(@"00:00:00")));
-        Assert.IsFalse(errorsAndInfos.Infos.Any(m => m.Contains(ThisIsNotCake)));
+        Assert.Contains(m => m.Contains(@"Task"), errorsAndInfos.Infos);
+        Assert.Contains(m => m.Contains(@"Duration"), errorsAndInfos.Infos);
+        Assert.Contains(m => m.Contains(@"00:00:00"), errorsAndInfos.Infos);
+        Assert.DoesNotContain(m => m.Contains(ThisIsNotCake), errorsAndInfos.Infos);
         ISimpleLogger logger = _container.Resolve<ISimpleLogger>();
         Assert.IsNotNull(logger);
         IList<ISimpleLogEntry> logEntries = logger.FindLogEntries(_ => true);
@@ -89,24 +89,24 @@ public class DotNetCakeRunnerTest {
     [TestMethod]
     public void CanCallScriptAgainstNonExistingTargetButGetAnError() {
         var errorsAndInfos = new ErrorsAndInfos();
-        Sut.CallCake(ScriptsFolder.FullName + @"\success.cake", "NonExistingTarget", true, errorsAndInfos);
+        _sut.CallCake(_scriptsFolder.FullName + @"\success.cake", "NonExistingTarget", true, errorsAndInfos);
         Assert.IsTrue(errorsAndInfos.Errors.Any());
-        Assert.IsTrue(errorsAndInfos.Errors.Any(e => e.Contains("The target 'NonExistingTarget' was not found")));
+        Assert.Contains(e => e.Contains("The target 'NonExistingTarget' was not found"), errorsAndInfos.Errors);
     }
 
     [TestMethod]
     public void CanCallScriptAgainstAlternativeTarget() {
         var errorsAndInfos = new ErrorsAndInfos();
-        Sut.CallCake(ScriptsFolder.FullName + @"\success.cake", "AlternativeTarget", true, errorsAndInfos);
+        _sut.CallCake(_scriptsFolder.FullName + @"\success.cake", "AlternativeTarget", true, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
-        Assert.IsTrue(errorsAndInfos.Infos.Any(i => i.Contains("This is an alternative target")));
+        Assert.Contains(i => i.Contains("This is an alternative target"), errorsAndInfos.Infos);
     }
 
     [TestMethod]
     public void CanCallScriptWithNet5Addin() {
         var errorsAndInfos = new ErrorsAndInfos();
 
-        Sut.CallCake(ScriptsFolder.FullName + @"\net5.cake", true, errorsAndInfos);
+        _sut.CallCake(_scriptsFolder.FullName + @"\net5.cake", true, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
         const string constructionStatement = "Constructing a strong thing";
         Assert.Contains(constructionStatement, errorsAndInfos.Infos);
