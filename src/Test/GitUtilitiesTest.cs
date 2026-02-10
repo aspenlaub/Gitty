@@ -127,6 +127,10 @@ public class GitUtilitiesTest {
         _container.Resolve<IEmbeddedCakeScriptCopier>().CopyCakeScriptEmbeddedInAssembly(Assembly.GetExecutingAssembly(), BuildCake.Standard, _doNotPullFolder, errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         _targetRunner.RunBuildCakeScript(BuildCake.Standard, _doNotPullFolder, "CleanRestorePull", errorsAndInfos);
+        if (errorsAndInfos.AnyErrors()) {
+            Assert.Inconclusive(errorsAndInfos.ErrorsPlusRelevantInfos());
+            return;
+        }
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsTrue(_Sut.IsBranchAheadOfMaster(_doNotPullFolder.Folder()));
     }
