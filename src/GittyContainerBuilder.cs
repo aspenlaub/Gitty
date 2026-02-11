@@ -14,6 +14,7 @@ public static class GittyContainerBuilder {
         builder.RegisterType<DotNetCakeRunner>().As<IDotNetCakeRunner>();
         builder.RegisterType<GitUtilities>().As<IGitUtilities>();
         builder.RegisterType<GitHubUtilities>().As<IGitHubUtilities>();
+        builder.RegisterType<ShatilayaRunner>().As<IShatilayaRunner>();
 
         return builder;
     }
@@ -26,6 +27,7 @@ public static class GittyContainerBuilder {
         services.AddTransient<IDotNetCakeRunner, DotNetCakeRunner>();
         services.AddTransient<IGitUtilities, GitUtilities>();
         services.AddTransient<IGitHubUtilities, GitHubUtilities>();
+        services.AddTransient<IShatilayaRunner, ShatilayaRunner>();
 
         return services;
     }
