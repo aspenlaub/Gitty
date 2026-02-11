@@ -14,18 +14,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'" />
   <ItemGroup>
-    <None Remove="build.cake" />
-    <None Remove="failure.cake" />
-    <None Remove="net5.cake" />
-    <None Remove="success.cake" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="build.cake" />
-    <EmbeddedResource Include="failure.cake" />
-    <EmbeddedResource Include="net5.cake" />
-    <EmbeddedResource Include="success.cake" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

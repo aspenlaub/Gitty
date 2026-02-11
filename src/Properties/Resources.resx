@@ -6,7 +6,7 @@
     Version 2.0
     
     The primary goals of this format is to allow a simple XML format 
-    that is mostly human-readable. The generation and parsing of the 
+    that is mostly human readable. The generation and parsing of the 
     various data types are done through the TypeConverter classes 
     associated with the data types.
     
@@ -126,12 +126,6 @@
   <data name="CouldNotGetListOfPullRequests" xml:space="preserve">
     <value>Could not get list of pull requests</value>
   </data>
-  <data name="CouldNotInstallCakeTool" xml:space="preserve">
-    <value>Could not install cake tool</value>
-  </data>
-  <data name="CouldNotLoadEmbeddedBuildCake" xml:space="preserve">
-    <value>Could not load {0} script embedded in {1}</value>
-  </data>
   <data name="ExactlyOneRemoteExpected" xml:space="preserve">
     <value>The checked out repository must have exactly one remote</value>
   </data>
@@ -140,6 +134,12 @@
   </data>
   <data name="ResourceNotFound" xml:space="preserve">
     <value>Resource not found</value>
+  </data>
+  <data name="ShatilayaDidNotLogAnything" xml:space="preserve">
+    <value>Shatilaya did not log anything</value>
+  </data>
+  <data name="ShatilayaFolderNotFound" xml:space="preserve">
+    <value>The Shatilaya folder was not found</value>
   </data>
   <data name="UncommittedChangeTo" xml:space="preserve">
     <value>There is an uncommitted change to "{0}"</value>

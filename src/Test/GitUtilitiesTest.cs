@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
+using System.Threading.Tasks;
+using Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.TestUtilities;
@@ -23,14 +24,13 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Test;
 public class GitUtilitiesTest {
     protected IFolder DevelopmentFolder, MasterFolder, NoGitFolder;
     private static readonly ITestTargetFolder _doNotPullFolder = new TestTargetFolder(nameof(GitUtilitiesTest) + @"DoNotPull", "Pakled");
-    private static ITestTargetRunner _targetRunner;
     private static IContainer _container;
     private IGitUtilities _Sut;
 
     [ClassInitialize]
     public static void ClassInitialize(TestContext context) {
         _container = new ContainerBuilder().UseGittyAndPegh("Gitty").UseGittyTestUtilities().Build();
-        _targetRunner = _container.Resolve<ITestTargetRunner>();
+        _container.Resolve<ITestTargetRunner>();
     }
 
     [TestInitialize]
@@ -119,19 +119,15 @@ public class GitUtilitiesTest {
     }
 
     [TestMethod]
-    public void CanCheckIfIsBranchAheadOfOrBehindMaster() {
+    public async Task CanCheckIfIsBranchAheadOfOrBehindMaster() {
         var errorsAndInfos = new ErrorsAndInfos();
         CloneRepository(_doNotPullFolder.Folder(), "do-not-pull-from-me", errorsAndInfos);
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsFalse(_Sut.IsBranchAheadOfMaster(MasterFolder));
-        _container.Resolve<IEmbeddedCakeScriptCopier>().CopyCakeScriptEmbeddedInAssembly(Assembly.GetExecutingAssembly(), BuildCake.Standard, _doNotPullFolder, errorsAndInfos);
-        Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
-        _targetRunner.RunBuildCakeScript(BuildCake.Standard, _doNotPullFolder, "CleanRestorePull", errorsAndInfos);
-        if (errorsAndInfos.AnyErrors()) {
-            Assert.Inconclusive(errorsAndInfos.ErrorsPlusRelevantInfos());
-            return;
-        }
-        Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
+        IShatilayaRunner shatilayaRunner = _container.Resolve<IShatilayaRunner>();
+        await shatilayaRunner.RunShatilayaAsync(_doNotPullFolder.Folder(), "CleanRestorePull", errorsAndInfos);
+        Assert.IsNotEmpty(errorsAndInfos.Infos);
+        Assert.IsEmpty(errorsAndInfos.Errors, errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsTrue(_Sut.IsBranchAheadOfMaster(_doNotPullFolder.Folder()));
     }
 

@@ -22,8 +22,11 @@ public class ShatilayaRunner(IFolderResolver folderResolver, IProcessRunner proc
         errorsAndInfos.Infos.Clear();
         string executableFullName = executableFullNames[0];
         string arguments = string.IsNullOrEmpty(target)
-            ? $"--repository {repositoryFolder.FullName}"
-            : $"--repository {repositoryFolder.FullName} --target {target}";
+        ? $"--repository {repositoryFolder.FullName}"
+        : $"--repository {repositoryFolder.FullName} --target {target}";
         processRunner.RunProcess(executableFullName, arguments, workingFolder, errorsAndInfos);
+        if (!errorsAndInfos.Infos.Any()) {
+            errorsAndInfos.Errors.Add(Properties.Resources.ShatilayaDidNotLogAnything);
+        }
     }
 }

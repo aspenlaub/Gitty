@@ -19,7 +19,7 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -88,24 +88,6 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not install cake tool.
-        /// </summary>
-        internal static string CouldNotInstallCakeTool {
-            get {
-                return ResourceManager.GetString("CouldNotInstallCakeTool", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not load {0} script embedded in {1}.
-        /// </summary>
-        internal static string CouldNotLoadEmbeddedBuildCake {
-            get {
-                return ResourceManager.GetString("CouldNotLoadEmbeddedBuildCake", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The checked out repository must have exactly one remote.
         /// </summary>
         internal static string ExactlyOneRemoteExpected {
@@ -129,6 +111,24 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Properties {
         internal static string ResourceNotFound {
             get {
                 return ResourceManager.GetString("ResourceNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Shatilaya did not log anything.
+        /// </summary>
+        internal static string ShatilayaDidNotLogAnything {
+            get {
+                return ResourceManager.GetString("ShatilayaDidNotLogAnything", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Shatilaya folder was not found.
+        /// </summary>
+        internal static string ShatilayaFolderNotFound {
+            get {
+                return ResourceManager.GetString("ShatilayaFolderNotFound", resourceCulture);
             }
         }
         
