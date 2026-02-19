@@ -54,10 +54,10 @@ public class GitPullTest {
         Assert.IsFalse(errorsAndInfos.Errors.Any(), errorsAndInfos.ErrorsPlusRelevantInfos());
 
         string projectFile = _chabTarget.Folder().SubFolder("src").SubFolder("Test").FullName + '\\' + _chabTarget.SolutionId + @"Standard.Test.csproj";
-        Assert.DoesNotContain("<PackageReference Include=\"Microsoft.NET.Test.Sdk\"", File.ReadAllText(projectFile));
+        Assert.DoesNotContain("<PackageReference Include=\"Seoa\"", File.ReadAllText(projectFile));
         gitUtilities.Pull(_chabTarget.Folder(), "UserName", "user.name@aspenlaub.org");
 
         projectFile = projectFile.Replace("Standard", "");
-        Assert.Contains("<PackageReference Include=\"Microsoft.NET.Test.Sdk\"", File.ReadAllText(projectFile));
+        Assert.Contains("<PackageReference Include=\"Seoa\"", File.ReadAllText(projectFile));
     }
 }
