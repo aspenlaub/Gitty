@@ -15,7 +15,7 @@ public class ShatilayaRunner(IFolderResolver folderResolver, IProcessRunner proc
         if (errorsAndInfos.AnyErrors()) {
             return;
         }
-        var shatilayaAssemblyFullNames = Directory.GetFiles(workingFolder.FullName, "*Shatilaya*.dll").ToList();
+        var shatilayaAssemblyFullNames = Directory.GetFiles(workingFolder.FullName, "Aspenlaub*Shatilaya*.dll", SearchOption.TopDirectoryOnly).ToList();
         if (shatilayaAssemblyFullNames.Count != 1) {
             errorsAndInfos.Errors.Add("Shatilaya assembly not found or not unique");
             return;
