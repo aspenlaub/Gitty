@@ -23,8 +23,8 @@ public class ShatilayaRunner(IFolderResolver folderResolver, IProcessRunner proc
 
         errorsAndInfos.Errors.Clear();
         errorsAndInfos.Infos.Clear();
-        string shatilayaAssemblyFullName = shatilayaAssemblyFullNames[0];
-        string arguments = shatilayaAssemblyFullName + ' ' + (string.IsNullOrEmpty(target)
+        string shatilayaAssemblyName = shatilayaAssemblyFullNames[0].Replace(workingFolder.FullName + '\\', "");
+        string arguments = shatilayaAssemblyName + ' ' + (string.IsNullOrEmpty(target)
         ? $"--repository {repositoryFolder.FullName}"
         : $"--repository {repositoryFolder.FullName} --target {target}");
         processRunner.RunProcess(_dotNetExecutableFileName, arguments, workingFolder, errorsAndInfos);
