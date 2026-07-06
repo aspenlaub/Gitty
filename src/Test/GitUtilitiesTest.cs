@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Extensions;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
@@ -126,7 +127,7 @@ public class GitUtilitiesTest {
         Assert.IsFalse(errorsAndInfos.AnyErrors(), errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsFalse(_Sut.IsBranchAheadOfMaster(MasterFolder));
         IShatilayaRunner shatilayaRunner = _container.Resolve<IShatilayaRunner>();
-        await shatilayaRunner.RunShatilayaAsync(_doNotPullFolder.Folder(), "CleanRestorePull", errorsAndInfos);
+        await shatilayaRunner.RunShatilayaAsync(_doNotPullFolder.Folder(), "CleanRestorePull", errorsAndInfos, CancellationToken.None);
         Assert.IsNotEmpty(errorsAndInfos.Infos);
         Assert.IsEmpty(errorsAndInfos.Errors, errorsAndInfos.ErrorsPlusRelevantInfos());
         Assert.IsTrue(_Sut.IsBranchAheadOfMaster(_doNotPullFolder.Folder()));

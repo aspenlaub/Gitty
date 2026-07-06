@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Aspenlaub.Net.GitHub.CSharp.Gitty.Interfaces;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Entities;
 using Aspenlaub.Net.GitHub.CSharp.Pegh.Extensions;
@@ -13,7 +14,8 @@ namespace Aspenlaub.Net.GitHub.CSharp.Gitty.Components;
 
 public class ProcessRunner(ISimpleLogger simpleLogger, IMethodNamesFromStackFramesExtractor methodNamesFromStackFramesExtractor)
         : IProcessRunner {
-    public void RunProcess(string executableFileName, string arguments, IFolder workingFolder, IErrorsAndInfos errorsAndInfos) {
+    public async Task RunProcessAsync(string executableFileName, string arguments, IFolder workingFolder,
+            IErrorsAndInfos errorsAndInfos, CancellationToken cancellationToken) {
         using (simpleLogger.BeginScope(SimpleLoggingScopeId.Create(nameof(ProcessRunner)))) {
             IList<string> methodNamesFromStack = methodNamesFromStackFramesExtractor.ExtractMethodNamesFromStackFrames();
             simpleLogger.LogInformationWithCallStack($"Running {executableFileName} with arguments {arguments} in {workingFolder.FullName}", methodNamesFromStack);
@@ -27,7 +29,7 @@ public class ProcessRunner(ISimpleLogger simpleLogger, IMethodNamesFromStackFram
                     process.Start();
                     process.BeginOutputReadLine();
                     process.BeginErrorReadLine();
-                    process.WaitForExit(int.MaxValue);
+                    await process.WaitForExitAsync(cancellationToken);
                     outputWaitHandle.WaitOne();
                     errorWaitHandle.WaitOne();
                 } catch (Exception e) {
