@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,11 +13,38 @@ public class ShatilayaRunner(IFolderResolver folderResolver, IProcessRunner proc
     private const string _dotNetExecutableFileName = "dotnet";
 
     public async Task RunShatilayaAsync(IFolder repositoryFolder, string target, IErrorsAndInfos errorsAndInfos, CancellationToken cancellationToken) {
-        IFolder workingFolder = await folderResolver.ResolveAsync("$(Shatilaya)", errorsAndInfos);
+        IFolder shatilayaReleaseFolder = await folderResolver.ResolveAsync("$(Shatilaya)", errorsAndInfos);
         if (errorsAndInfos.AnyErrors()) {
             return;
         }
-        var shatilayaAssemblyFullNames = Directory.GetFiles(workingFolder.FullName, "Aspenlaub*Shatilaya*.dll", SearchOption.TopDirectoryOnly).ToList();
+        IFolder shatilayaWorkerFolder = await folderResolver.ResolveAsync("$(ShatilayaWorker)", errorsAndInfos);
+        if (errorsAndInfos.AnyErrors()) {
+            return;
+        }
+
+        if (repositoryFolder.FullName.Contains("Shatilaya")) {
+            var startInfo = new ProcessStartInfo {
+                FileName = "robocopy.exe",
+                Arguments = $"\"{shatilayaReleaseFolder.FullName}\" \"{shatilayaWorkerFolder.FullName}\" /E /R:2 /W:5 /MT:8",
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using var process = Process.Start(startInfo);
+            if (process == null) {
+                errorsAndInfos.Errors.Add("Could not use robocopy");
+                return;
+            }
+            await process.WaitForExitAsync(cancellationToken);
+
+            if (process.ExitCode >= 8) {
+                errorsAndInfos.Errors.Add($"Robocopy failed with exit code {process.ExitCode}");
+                return;
+            }
+        } else {
+            shatilayaWorkerFolder = shatilayaReleaseFolder;
+        }
+
+        var shatilayaAssemblyFullNames = Directory.GetFiles(shatilayaWorkerFolder.FullName, "Aspenlaub*Shatilaya*.dll", SearchOption.TopDirectoryOnly).ToList();
         if (shatilayaAssemblyFullNames.Count != 1) {
             errorsAndInfos.Errors.Add("Shatilaya assembly not found or not unique");
             return;
@@ -24,11 +52,11 @@ public class ShatilayaRunner(IFolderResolver folderResolver, IProcessRunner proc
 
         errorsAndInfos.Errors.Clear();
         errorsAndInfos.Infos.Clear();
-        string shatilayaAssemblyName = shatilayaAssemblyFullNames[0].Replace(workingFolder.FullName + '\\', "");
+        string shatilayaAssemblyName = shatilayaAssemblyFullNames[0].Replace(shatilayaWorkerFolder.FullName + '\\', "");
         string arguments = shatilayaAssemblyName + ' ' + (string.IsNullOrEmpty(target)
-        ? $"--repository {repositoryFolder.FullName}"
-        : $"--repository {repositoryFolder.FullName} --target {target}");
-        await processRunner.RunProcessAsync(_dotNetExecutableFileName, arguments, workingFolder, errorsAndInfos, cancellationToken);
+            ? $"--repository {repositoryFolder.FullName}"
+            : $"--repository {repositoryFolder.FullName} --target {target}");
+        await processRunner.RunProcessAsync(_dotNetExecutableFileName, arguments, shatilayaWorkerFolder, errorsAndInfos, cancellationToken);
         if (!errorsAndInfos.Infos.Any()) {
             errorsAndInfos.Errors.Add(Properties.Resources.ShatilayaDidNotLogAnything);
         }
